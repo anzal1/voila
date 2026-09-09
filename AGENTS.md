@@ -3,7 +3,7 @@
 You can use voila directly — no human setup required. Everything
 self-provisions on first run (Chromium, ffmpeg, the TTS model). Node >= 20.
 
-Machine-readable version of this document: https://anzal1.github.io/voila/llms.txt
+Machine-readable version of this document: https://voila.anzalabidi.dev/llms.txt
 
 ## Use it
 

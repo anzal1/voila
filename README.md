@@ -70,14 +70,14 @@ compiled artifact; the recipe is the source.
 ## For agents (MCP + CLI)
 
 Agents are the primary interface — point yours at voila and it does the rest.
-Machine-readable instructions: [llms.txt](https://anzal1.github.io/voila/llms.txt) · [AGENTS.md](AGENTS.md) · portable Claude Code skill: [skills/voila](skills/voila/SKILL.md)
+Machine-readable instructions: [llms.txt](https://voila.anzalabidi.dev/llms.txt) · [AGENTS.md](AGENTS.md) · portable Claude Code skill: [skills/voila](skills/voila/SKILL.md)
 
 | Harness | Install |
 |---|---|
 | Claude Code | `npx -y voila-recorder skill` (installs the skill) + `claude mcp add voila -- npx -y voila-recorder mcp` |
 | Cursor · Windsurf · Claude Desktop | `{"voila": {"command": "npx", "args": ["-y", "voila-recorder", "mcp"]}}` |
 | Codex CLI | `[mcp_servers.voila]` · `command = "npx"` · `args = ["-y", "voila-recorder", "mcp"]` |
-| Any agent, no MCP | tell it: *"record a demo of \<url\> using voila — see anzal1.github.io/voila/llms.txt"* |
+| Any agent, no MCP | tell it: *"record a demo of \<url\> using voila — see voila.anzalabidi.dev/llms.txt"* |
 
 From a git clone instead of npm: `claude mcp add voila -- node /path/to/voila/mcp.js`
 

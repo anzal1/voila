@@ -20,7 +20,7 @@ npx -y voila-recorder review demo.mp4
 ```
 
 Register the MCP server once with: `claude mcp add voila -- npx -y voila-recorder mcp`
-Reference: https://anzal1.github.io/voila/llms.txt · https://github.com/anzal1/voila
+Reference: https://voila.anzalabidi.dev/llms.txt · https://github.com/anzal1/voila
 
 ## Workflow — always this loop
 
