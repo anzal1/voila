@@ -1,5 +1,11 @@
 # voila.
 
+[![ci](https://github.com/anzal1/voila/actions/workflows/ci.yml/badge.svg)](https://github.com/anzal1/voila/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/voila-recorder)](https://www.npmjs.com/package/voila-recorder)
+
+Verified on Linux, macOS, and Windows in CI: every push records a real demo on
+all three and checks the on-device narration track.
+
 One-click, permission-free product demo recorder. Paste a URL → get a crisp,
 auto-zoomed, cursor-animated MP4. No OS screen-recording permission, ever —
 nothing captures your screen. The page is rendered inside a Chromium instance
