@@ -48,7 +48,7 @@ Each step: `{ action, ...params, caption?, narration?, optional?, pause? }`
 | `scroll`    | `y` (absolute px), `ms`             | eased scroll |
 | `scroll_to` | `selector`, `ms`                    | eased scroll until element is in view |
 | `slide`     | `title`, `subtitle?`, `accent?`, `ms?` | full-screen animated title card |
-| `zoom`      | `level` (1–3), `ms`                 | camera zoom toward the cursor |
+| `zoom`      | `level` (1-3) or `selector`, `ms`   | camera zoom; with a selector it frames that element |
 | `wait`      | `ms`                                | hold (cursor keeps breathing on long holds) |
 
 `caption` renders as a lower-third; `narration` is spoken by on-device TTS and

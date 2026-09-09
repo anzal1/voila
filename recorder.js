@@ -38,6 +38,7 @@ class Timeline {
     this.warnings = [];
     this.pos = { x: -60, y: -60 };
     this.zoom = 1;
+    this.center = null;
   }
   recordSegment(caption, narration, dur = null) {
     this.segments.push({ t: Date.now(), caption: caption || null, narration: narration || null, dur });
@@ -46,9 +47,14 @@ class Timeline {
     this.moves.push({ t: Date.now(), from: { ...this.pos }, to: { ...to }, dur });
     this.pos = { ...to };
   }
-  recordZoom(level, dur) {
-    this.zooms.push({ t: Date.now(), from: this.zoom, to: level, dur });
+  // center: {x,y} in CSS px to frame on, or null to follow the cursor.
+  recordZoom(level, dur, center = null) {
+    this.zooms.push({
+      t: Date.now(), from: this.zoom, to: level, dur,
+      fromCenter: this.center, toCenter: center,
+    });
     this.zoom = level;
+    this.center = center;
   }
 }
 
@@ -107,6 +113,19 @@ class VoilaSession {
       : await this.open(url);
     this.page = page;
     await page.evaluate(OVERLAY_SOURCE);
+
+    // Recording a login screen is never what anyone wanted. Say so up front.
+    const { detectAuthWall } = require('./auth');
+    const wall = await detectAuthWall(page);
+    if (wall.isWall) {
+      throw new Error(
+        `this looks like a sign-in page, not your product (${wall.url}). ` +
+        `Sign in once with:  voila login ${new URL(url).origin}  ` +
+        `(a real browser window opens, you sign in yourself, the session is saved to ` +
+        `${this.profileDir}). Then re-run the recording. Pass --profile <dir> to keep ` +
+        `separate logins per product.`
+      );
+    }
 
     const client = await this.context.newCDPSession(page);
     const frames = [];

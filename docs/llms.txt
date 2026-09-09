@@ -21,6 +21,8 @@ Codex CLI (~/.codex/config.toml):
 
 No MCP? Use the CLI directly:
   npx -y voila-recorder outline <url>
+  npx -y voila-recorder login <url>            # human signs in; session saved locally
+  npx -y voila-recorder voices                 # every narration voice, best first
   npx -y voila-recorder record <url> [--steps steps.yaml] [--device mobile|tablet]
   npx -y voila-recorder review <video.mp4> [--frames 12]
 
@@ -40,7 +42,7 @@ Everything self-provisions on first run (Chromium, ffmpeg, TTS model). Node >= 2
 A list of {action, ...params, caption?, narration?, optional?}:
   goto(url) · click(selector) · hover(selector) · type(selector, text)
   scroll(y) · scroll_to(selector) · slide(title, subtitle?, accent?, ms?)
-  zoom(level 1-3) · wait(ms)
+  zoom(level 1-3, OR selector to frame that element) · wait(ms)
 
 - caption: burned-in lower-third text.
 - narration: spoken on-device; the recording auto-paces each segment to the
@@ -51,9 +53,17 @@ A list of {action, ...params, caption?, narration?, optional?}:
   outline: patch the selector and retry. Prefer a[href='/path'] and ids over
   text selectors. Append " >> visible=true" when desktop+mobile nav duplicate.
 - device mobile and tablet: real portrait viewports, zoom disabled by design (narrow layouts crop badly).
-- Login walls: ask the human to sign in once (record --headful, or the web UI
-  via `npx -y voila-recorder serve`); the session persists in a local profile.
-  Never type credentials yourself.
+- zoom with a selector is better than zoom with a level: voila measures the
+  element and picks both the level and the camera centre, so nothing is cropped.
+- Voices: 28 English voices (US and UK). Best graded: af_heart (A),
+  af_bella (A-), af_nicole (B-), bf_emma (B-, British). voila_voices lists all
+  with grades. `speed` (0.5-1.6) changes delivery pace.
+- Login walls: voila_record REFUSES to record a sign-in page and says so. Then
+  call voila_login (or `npx -y voila-recorder login <url>`): a real browser
+  window opens, the HUMAN signs in, and the session is saved to a local
+  Chromium profile that every later recording reuses. Never type credentials
+  yourself, and never ask the user for them in chat.
+- A failing step is retried once automatically before it is reported.
 
 ## The loop (always)
 

@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { execFile, spawn } = require('child_process');
 const ffmpegPath = require('ffmpeg-static');
+const voices = require('./voices');
 
 const run = (cmd, args) => new Promise((res, rej) => {
   execFile(cmd, args, { maxBuffer: 1e7 }, (err, stdout, stderr) =>
@@ -29,15 +30,19 @@ async function getKokoro() {
   return kokoroInstance;
 }
 
-async function synthKokoro(texts, dir, voice, onStatus) {
+async function synthKokoro(texts, dir, voice, onStatus, speed = 1) {
+  // Fail loudly on a bad voice name rather than silently using the default.
+  if (voice && /^[a-z]{2}_/.test(voice) && !voices.isValid(voice)) {
+    throw new Error(`unknown voice "${voice}". Try: ${voices.suggest(voice).join(', ')} (run \`voila voices\` for all ${voices.ranked().length})`);
+  }
   onStatus('loading Kokoro TTS');
   const tts = await getKokoro();
-  const v = voice && /^[a-z]{2}_/.test(voice) ? voice : 'af_heart';
-  onStatus(`narrating with Kokoro (${v})`);
+  const v = voice && voices.isValid(voice) ? voice : 'af_heart';
+  onStatus(`narrating with Kokoro (${v}${speed !== 1 ? ` @${speed}x` : ''})`);
   const clips = [];
   for (let i = 0; i < texts.length; i++) {
     const file = path.join(dir, `seg${i}.wav`);
-    const audio = await tts.generate(texts[i], { voice: v });
+    const audio = await tts.generate(texts[i], { voice: v, speed });
     await audio.save(file);
     const durMs = audio.audio && audio.sampling_rate
       ? Math.round((audio.audio.length / audio.sampling_rate) * 1000)
@@ -87,13 +92,14 @@ async function synthSay(texts, dir, voice, onStatus) {
 
 // Synthesize narration clips up front so the recorder can pace segments to the
 // spoken durations. Returns {clips: [{file, durMs}], voice, backend}.
-async function prepareNarration(texts, dir, voice, onStatus = () => {}) {
+async function prepareNarration(texts, dir, voice, onStatus = () => {}, speed = 1) {
   fs.mkdirSync(dir, { recursive: true });
   const backend = process.env.VOILA_TTS || 'kokoro';
   if (backend === 'kokoro') {
     try {
-      return await synthKokoro(texts, dir, voice, onStatus);
+      return await synthKokoro(texts, dir, voice, onStatus, speed);
     } catch (e) {
+      if (/unknown voice/.test(e.message)) throw e;   // user error, not a fallback case
       onStatus(`kokoro unavailable (${e.message.slice(0, 80)})`);
     }
   }
@@ -101,7 +107,7 @@ async function prepareNarration(texts, dir, voice, onStatus = () => {}) {
   throw new Error('no TTS backend available');
 }
 
-async function addNarration(meta, videoIn, videoOut, { voice = null, prepared = null, onStatus = () => {} } = {}) {
+async function addNarration(meta, videoIn, videoOut, { voice = null, speed = 1, prepared = null, onStatus = () => {} } = {}) {
   const segs = (meta.segments || []).filter(s => s.narration);
   if (!segs.length) {
     fs.copyFileSync(videoIn, videoOut);
@@ -113,7 +119,7 @@ async function addNarration(meta, videoIn, videoOut, { voice = null, prepared = 
   let synth = prepared && prepared.clips.length === segs.length ? prepared : null;
   if (!synth) {
     try {
-      synth = await prepareNarration(segs.map(s => s.narration), dir, voice, onStatus);
+      synth = await prepareNarration(segs.map(s => s.narration), dir, voice, onStatus, speed);
     } catch (e) {
       onStatus(`narration skipped: ${e.message}`);
       fs.copyFileSync(videoIn, videoOut);

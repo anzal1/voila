@@ -20,6 +20,22 @@ function scalarAt(events, t, initial) {
   return v;
 }
 
+// Camera center: an explicit zoom target when one is set, otherwise the cursor.
+function centerAt(zooms, t, cursor) {
+  let active = null;
+  for (const e of zooms) {
+    if (t < e.t) break;
+    if (!e.toCenter) { active = null; continue; }
+    const p = cubicInOut(Math.min(1, (t - e.t) / e.dur));
+    const from = e.fromCenter || cursor;
+    active = {
+      x: from.x + (e.toCenter.x - from.x) * p,
+      y: from.y + (e.toCenter.y - from.y) * p,
+    };
+  }
+  return active || cursor;
+}
+
 function pointAt(events, t, initial) {
   let v = { ...initial };
   for (const e of events) {
@@ -125,10 +141,11 @@ async function render(meta, outFile, { fps = 30, outW = null, outH = null, onSta
 
     const z = Math.max(1, Math.min(3, scalarAt(zooms, t, 1)));
     const cur = pointAt(moves, t, { x: viewport.width / 2, y: viewport.height / 2 });
+    const cam = centerAt(zooms, t, cur);
     const caption = captionAt(meta.segments, t);
 
     const cropW = W / z, cropH = H / z;
-    let cx = cur.x * sx, cy = cur.y * sy;
+    let cx = cam.x * sx, cy = cam.y * sy;
     cx = Math.max(cropW / 2, Math.min(W - cropW / 2, cx));
     cy = Math.max(cropH / 2, Math.min(H - cropH / 2, cy));
 

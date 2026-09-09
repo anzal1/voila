@@ -44,7 +44,7 @@ function embedRecipe(videoIn, videoOut, recipe) {
   });
 }
 
-async function produceDemo(session, { url, mode = 'auto', steps = null, workDir, voice = null, narrate = true, onStatus = () => {} }) {
+async function produceDemo(session, { url, mode = 'auto', steps = null, workDir, voice = null, speed = 1, narrate = true, onStatus = () => {} }) {
   // Steps mode: synthesize narration BEFORE recording so segment pacing and
   // caption lifetimes match the spoken clip durations exactly.
   let prepared = null;
@@ -52,7 +52,7 @@ async function produceDemo(session, { url, mode = 'auto', steps = null, workDir,
     const texts = steps.filter(s => s.narration).map(s => s.narration);
     if (texts.length) {
       try {
-        prepared = await prepareNarration(texts, path.join(workDir, 'tts'), voice, onStatus);
+        prepared = await prepareNarration(texts, path.join(workDir, 'tts'), voice, onStatus, speed);
         let i = 0;
         for (const s of steps) if (s.narration) s._narrDurMs = prepared.clips[i++].durMs;
       } catch (e) {
@@ -69,7 +69,7 @@ async function produceDemo(session, { url, mode = 'auto', steps = null, workDir,
   await render(meta, raw, { onStatus });
 
   let narration = { narrated: false };
-  if (narrate) narration = await addNarration(meta, raw, narrated, { voice, prepared, onStatus });
+  if (narrate) narration = await addNarration(meta, raw, narrated, { voice, speed, prepared, onStatus });
   else fs.copyFileSync(raw, narrated);
 
   const recipe = buildRecipe({ url, mode, steps, meta });

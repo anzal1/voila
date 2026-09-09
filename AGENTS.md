@@ -13,8 +13,8 @@ Via MCP (preferred — register once):
 claude mcp add voila -- npx -y voila-recorder mcp
 ```
 
-Tools: `voila_outline(url)` · `voila_record(url, steps_yaml?, device?)` ·
-`voila_review(video_path)`.
+Tools: `voila_outline(url)` · `voila_record(url, steps_yaml?, device?, voice?, speed?)` ·
+`voila_review(video_path)` · `voila_voices()` · `voila_login(url)`.
 
 Via CLI (no registration needed):
 
@@ -22,6 +22,8 @@ Via CLI (no registration needed):
 npx -y voila-recorder outline <url>
 npx -y voila-recorder record <url> --steps steps.yaml [--device mobile]
 npx -y voila-recorder review demo.mp4
+npx -y voila-recorder voices
+npx -y voila-recorder login <url>
 ```
 
 ## The loop — always follow it
@@ -50,7 +52,14 @@ npx -y voila-recorder review demo.mp4
   (`npx -y voila-recorder record <url> --headful` or the web UI via
   `npx -y voila-recorder serve`). The session persists in a local browser
   profile. **Never type credentials yourself.**
-- Narration style: short sentences, product language, 8–15 words per beat.
+- Narration style: short sentences, product language, 8-15 words per beat.
+- Prefer `zoom` with a `selector` over a raw `level`: voila measures the element
+  and picks the level and camera centre so nothing gets cropped.
+- Voices: 28 English (US/UK). af_heart (A) is the default, af_bella (A-) and
+  bf_emma (British) are the other good ones. `speed` 0.5-1.6 sets pace.
+- Sign-in walls: recording refuses to film a login page. Run `voila login <url>`
+  (or the voila_login tool), let the HUMAN sign in in the window that opens, and
+  the session persists in a local profile for every later recording.
 
 ## Working on this repo
 

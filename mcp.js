@@ -13,6 +13,7 @@ const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio
 const { VoilaSession } = require('./recorder');
 const { produceDemo, outline } = require('./pipeline');
 const { reviewDemo } = require('./review');
+const voiceCatalogue = require('./voices');
 
 // One persistent Chromium profile can't be opened twice, so browser work is
 // serialized through a queue: concurrent tool calls wait instead of colliding.
@@ -36,7 +37,7 @@ function getSession(device) {
   return sessions.get(key);
 }
 
-const server = new McpServer({ name: 'voila', version: '0.4.0' });
+const server = new McpServer({ name: 'voila', version: '0.5.0' });
 const deviceParam = z.enum(['desktop', 'mobile', 'tablet']).optional().default('desktop');
 
 server.tool(
@@ -55,7 +56,8 @@ server.tool(
   'Record a crisp, auto-zoomed MP4 demo of a website — no screen capture, no permissions. ' +
   'Without steps_yaml it runs a generic auto-tour. For a proper demo, pass steps_yaml: a YAML list of ' +
   '{action, selector?, url?, text?, title?, subtitle?, accent?, level?, ms?, caption?, narration?, optional?}. ' +
-  'Actions: goto, click, hover, type, scroll, scroll_to, slide (animated full-screen title card: title/subtitle/accent), zoom, wait. ' +
+  'Actions: goto, click, hover, type, scroll, scroll_to, slide (animated full-screen title card: title/subtitle/accent), zoom, wait. '  +
+  'zoom accepts either level (1-3) or, better, selector: it then frames that element, choosing the level and camera centre for you. ' +
   'caption is burned into the video as a lower-third; narration is spoken via on-device TTS (Kokoro) at that step, ' +
   'and segment pacing automatically stretches to fit each narration clip — no need to pad waits. ' +
   'Steps marked optional:true are skipped on failure instead of aborting. ' +
@@ -66,15 +68,16 @@ server.tool(
     url: z.string().url(),
     steps_yaml: z.string().optional(),
     narrate: z.boolean().optional().default(true),
-    voice: z.string().optional(),
+    voice: z.string().optional().describe('narration voice id, e.g. af_heart (A), af_bella (A-), bf_emma (B-, British). Call voila_voices for the full list.'),
+    speed: z.number().min(0.5).max(1.6).optional().default(1).describe('narration speed; 0.9 reads calmer'),
     device: deviceParam,
   },
-  async ({ url, steps_yaml, narrate, voice, device }) => enqueue(async () => {
+  async ({ url, steps_yaml, narrate, voice, speed, device }) => enqueue(async () => {
     const steps = steps_yaml ? yaml.load(steps_yaml) : null;
     const workDir = path.join(__dirname, 'recordings', `mcp-${Date.now()}`);
     fs.mkdirSync(workDir, { recursive: true });
     const result = await produceDemo(getSession(device), {
-      url, steps, workDir, narrate, voice: voice || null,
+      url, steps, workDir, narrate, voice: voice || null, speed,
       onStatus: () => {},
     });
     return {
@@ -108,6 +111,37 @@ server.tool(
   },
   async ({ video_path, frame_count }) => ({
     content: [{ type: 'text', text: JSON.stringify(await reviewDemo(video_path, { count: frame_count }), null, 2) }],
+  })
+);
+
+server.tool(
+  'voila_voices',
+  'List every narration voice with its quality grade, best first. Use before voila_record when the ' +
+  'user asks for a different voice, an accent, or a male or female narrator.',
+  {},
+  async () => ({
+    content: [{ type: 'text', text: JSON.stringify(voiceCatalogue.ranked(), null, 2) }],
+  })
+);
+
+server.tool(
+  'voila_login',
+  'Open a real browser window so the PERSON can sign in to their product themselves. The session is ' +
+  'saved to a local Chromium profile and every later recording of that site is already logged in. ' +
+  'Call this when voila_record fails saying it hit a sign-in page. voila never sees or types ' +
+  'credentials: you are only opening the window for the human. Requires a desktop session; tell the ' +
+  'user to watch for the window.',
+  { url: z.string().url(), device: deviceParam },
+  async ({ url, device }) => enqueue(async () => {
+    const s = getSession(device);
+    const { login } = require('./auth');
+    const r = await login(s, url);
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        result: r.reason, profile: r.profileDir, endedOn: r.finalUrl,
+        next: 'Re-run voila_record; the recording will reuse this signed-in profile.',
+      }, null, 2) }],
+    };
   })
 );
 

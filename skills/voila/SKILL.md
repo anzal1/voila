@@ -31,7 +31,8 @@ Reference: https://voila.anzalabidi.dev/llms.txt · https://github.com/anzal1/vo
    clip's length — do NOT pad waits for narration). Open and close with a
    `slide` (animated title card: `title`, `subtitle`, `accent` hex).
    Actions: goto, click, hover, type, scroll (y), scroll_to (selector),
-   slide, zoom (level), wait. Mark risky steps `optional: true`.
+   slide, zoom (level OR selector to frame an element), wait. Mark risky steps
+   `optional: true`.
 3. **Record** (`voila_record` / `record --steps`).
 4. **Review your own output** (`voila_review`) → frames + timeline. Read the
    frames. Check: cursor near what narration discusses; captions not covering
@@ -52,8 +53,17 @@ Reference: https://voila.anzalabidi.dev/llms.txt · https://github.com/anzal1/vo
   (834x1112). Zoom is auto-disabled on mobile and tablet because narrow
   layouts crop badly; both output portrait.
 - Zoom levels 1.3–1.6 on desktop; always return to 1 before ending.
-- Login-protected apps: ask the user to run the record once with `--headful`,
-  or open the web UI (`npx -y voila-recorder serve`, port 4477) and sign in —
-  the session persists in the local profile. NEVER type credentials yourself.
+- Login-protected apps: recording a sign-in page is refused with a clear error.
+  Run `voila login <url>` (or the voila_login tool): a real browser window
+  opens, the USER signs in themselves, and the session is saved to a local
+  Chromium profile every later recording reuses. Use `--profile <dir>` for
+  separate logins per product. NEVER type credentials yourself and never ask
+  for them in chat.
+- Prefer `zoom` with a `selector` over a bare `level`: voila measures the
+  element and picks the level and camera centre, so nothing is cropped.
+- Voices: `voila voices` lists 28 English voices with quality grades. af_heart
+  (A) default, af_bella (A-), af_nicole (B-), bf_emma (B-, British). `--speed`
+  or the speed param (0.5-1.6) changes pace; 0.9 reads calmer.
+- A failing step is retried once automatically; warnings appear in the result.
 - Narration style: short sentences, product language, no "as you can see".
   8–15 words per beat reads best at Kokoro's pace.

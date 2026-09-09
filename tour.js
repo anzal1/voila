@@ -15,9 +15,31 @@ async function moveCursor(page, tl, x, y, dur = 700) {
   await page.evaluate(([x, y, d]) => window.__voila.moveTo(x, y, d), [x, y, dur]);
 }
 
-async function zoomTo(page, tl, level, dur = 800, { sleep, maxZoom = 3 }) {
-  tl.recordZoom(Math.min(level, maxZoom), dur);
+async function zoomTo(page, tl, level, dur = 800, { sleep, maxZoom = 3 }, center = null) {
+  tl.recordZoom(Math.min(level, maxZoom), dur, center);
   await sleep(dur);
+}
+
+// Frame an element: pick the zoom level that fits its box with breathing room,
+// and centre the camera on the element instead of wherever the cursor happens
+// to be. Returns {level, center} clamped so the crop never leaves the viewport.
+function frameElement(box, viewport, maxZoom, fill = 0.72) {
+  const padX = viewport.width * 0.06, padY = viewport.height * 0.06;
+  const level = Math.max(1, Math.min(
+    maxZoom,
+    Math.min(
+      (viewport.width * fill) / Math.max(80, box.width + padX * 2),
+      (viewport.height * fill) / Math.max(60, box.height + padY * 2)
+    )
+  ));
+  const halfW = viewport.width / level / 2, halfH = viewport.height / level / 2;
+  return {
+    level,
+    center: {
+      x: Math.max(halfW, Math.min(viewport.width - halfW, box.x + box.width / 2)),
+      y: Math.max(halfH, Math.min(viewport.height - halfH, box.y + box.height / 2)),
+    },
+  };
 }
 
 async function smoothScroll(page, tl, y, dur = 1100) {
@@ -181,11 +203,26 @@ async function autoTour(page, tl, opts) {
 // YAML: a list of {action, selector?, text?, url?, ms?, level?}
 // actions: goto, click, hover, type, scroll_to, wait, zoom
 
-async function targetBox(page, selector) {
-  let box = await page.locator(selector).first().boundingBox().catch(() => null);
-  if (!box) box = await page.locator(`${selector} >> visible=true`).first().boundingBox().catch(() => null);
-  if (!box) throw new Error(`selector not found or not visible: ${selector}`);
-  return { box, c: { x: box.x + box.width / 2, y: box.y + box.height / 2 } };
+// Resolve a selector into an on-screen box, giving the page a fair chance:
+// wait for it to attach and become visible, try the visible-only variant, and
+// scroll it into view. Only then give up.
+async function targetBox(page, selector, { timeout = 6000 } = {}) {
+  const tries = [selector, `${selector} >> visible=true`];
+  for (const sel of tries) {
+    const loc = page.locator(sel).first();
+    try {
+      await loc.waitFor({ state: 'visible', timeout: timeout / tries.length });
+    } catch { continue; }
+    let box = await loc.boundingBox().catch(() => null);
+    if (!box || box.y < 0 || box.y > page.viewportSize().height) {
+      await loc.scrollIntoViewIfNeeded({ timeout: 2000 }).catch(() => {});
+      box = await loc.boundingBox().catch(() => null);
+    }
+    if (box && box.width > 0 && box.height > 0) {
+      return { box, c: { x: box.x + box.width / 2, y: box.y + box.height / 2 } };
+    }
+  }
+  throw new Error(`selector not found or not visible: ${selector}`);
 }
 
 async function runSteps(page, tl, steps, opts) {
@@ -209,7 +246,7 @@ async function runSteps(page, tl, steps, opts) {
       segStart = Date.now();
       segMinMs = (step._narrDurMs || 0) + 600;
     }
-    try {
+    const runStep = async () => {
     switch (step.action) {
       case 'goto':
         await page.goto(step.url, { waitUntil: 'domcontentloaded' });
@@ -268,9 +305,19 @@ async function runSteps(page, tl, steps, opts) {
         });
         break;
       }
-      case 'zoom':
-        await zoomTo(page, tl, step.level || 1.5, step.ms || 800, opts);
+      case 'zoom': {
+        if (step.selector) {
+          const { box } = await targetBox(page, step.selector);
+          const vp = page.viewportSize();
+          const f = frameElement(box, vp, opts.maxZoom ?? 3, step.fill || 0.72);
+          await moveCursor(page, tl, f.center.x, f.center.y, 600);
+          await zoomTo(page, tl, step.level || f.level, step.ms || 900, opts, f.center);
+        } else {
+          // no selector: keep following the cursor
+          await zoomTo(page, tl, step.level || 1.5, step.ms || 800, opts, null);
+        }
         break;
+      }
       case 'wait': {
         const ms = step.ms || 1000;
         if (ms > 2600) {
@@ -287,6 +334,19 @@ async function runSteps(page, tl, steps, opts) {
       default:
         throw new Error(`unknown action: ${step.action}`);
     }
+    };
+
+    try {
+      try {
+        await runStep();
+      } catch (first) {
+        // Recovery: pages settle late, hydrate, animate. Give the step one
+        // more go after a beat before calling it a failure.
+        tl.warnings.push(`step ${si + 1} (${step.action}) retried after: ${first.message.slice(0, 120)}`);
+        await sleep(1200);
+        await ensureOverlay(page, tl).catch(() => {});
+        await runStep();
+      }
     } catch (e) {
       if (step.optional) {
         tl.warnings.push(`step ${si + 1} (${step.action}) skipped: ${e.message}`);

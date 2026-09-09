@@ -3,6 +3,8 @@
 //   voila outline <url> [--device mobile]
 //   voila record <url> [--steps f.yaml] [--device mobile] [--voice name] [--no-narrate] [--headful] [--out dir]
 //   voila review <video.mp4> [--frames 12] [--out dir]
+//   voila login <url> [--profile dir]
+//   voila voices
 //   voila serve [--port 4477]
 //   voila mcp
 
@@ -17,8 +19,10 @@ function arg(name, fallback = null) {
 
 const USAGE = `usage:
   voila outline <url> [--device desktop|mobile|tablet]
-  voila record <url> [--steps f.yaml] [--device mobile] [--voice name] [--no-narrate] [--headful] [--out dir] [--profile dir]
+  voila record <url> [--steps f.yaml] [--device mobile] [--voice name] [--speed 1] [--no-narrate] [--headful] [--out dir] [--profile dir]
   voila review <video.mp4> [--frames 12] [--out dir]
+  voila login <url> [--profile dir]     (sign in yourself; session is saved locally)
+  voila voices                          (list every narration voice, best first)
   voila skill   (install the voila skill into ~/.claude/skills)
   voila serve   (web UI, PORT env or --port)
   voila mcp     (stdio MCP server)`;
@@ -33,6 +37,10 @@ const USAGE = `usage:
   }
   if (cmd === 'mcp') {
     require('./mcp');
+    return;
+  }
+  if (cmd === 'voices') {
+    console.log(require('./voices').format());
     return;
   }
   if (cmd === 'skill') {
@@ -61,7 +69,7 @@ const USAGE = `usage:
   }
 
   const url = process.argv[3];
-  if (!cmd || !url || !['outline', 'record'].includes(cmd)) {
+  if (!cmd || !url || !['outline', 'record', 'login'].includes(cmd)) {
     console.error(USAGE);
     process.exit(1);
   }
@@ -75,7 +83,13 @@ const USAGE = `usage:
   });
 
   try {
-    if (cmd === 'outline') {
+    if (cmd === 'login') {
+      const { login } = require('./auth');
+      console.error('[voila] opening a browser window. Sign in there, then press Enter here.');
+      const r = await login(session, url, { onStatus: m => console.error('[voila]', m) });
+      console.error(`[voila] ${r.reason}. Session saved to ${r.profileDir}`);
+      console.log(r.profileDir);
+    } else if (cmd === 'outline') {
       console.log(JSON.stringify(await outline(session, url), null, 2));
     } else {
       const stepsFile = arg('--steps');
@@ -86,6 +100,7 @@ const USAGE = `usage:
         url, steps, workDir,
         narrate: !process.argv.includes('--no-narrate'),
         voice: arg('--voice'),
+        speed: Number(arg('--speed', '1')) || 1,
         onStatus: s => console.error('[voila]', s),
       });
       console.log(result.video);
