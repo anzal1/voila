@@ -37,7 +37,7 @@ function getSession(device) {
   return sessions.get(key);
 }
 
-const server = new McpServer({ name: 'voila', version: '0.6.0' });
+const server = new McpServer({ name: 'voila', version: '0.7.0' });
 const deviceParam = z.enum(['desktop', 'mobile', 'tablet']).optional().default('desktop');
 
 server.tool(
@@ -61,6 +61,7 @@ server.tool(
   'caption is burned into the video as a lower-third; narration is spoken via on-device TTS (Kokoro) at that step, ' +
   'and segment pacing automatically stretches to fit each narration clip — no need to pad waits. ' +
   'Steps marked optional:true are skipped on failure instead of aborting. ' +
+  'A step may set its own voice: (mixing languages within one demo) or audio: (a ready-made clip). ' +
   'device selects the recorded viewport (mobile emulates an iPhone-class device). ' +
   'On failure the error names the failing step and includes the live page outline — patch the steps and retry. ' +
   'Returns the MP4 path, the recipe path, and any warnings.',
@@ -68,16 +69,17 @@ server.tool(
     url: z.string().url(),
     steps_yaml: z.string().optional(),
     narrate: z.boolean().optional().default(true),
-    voice: z.string().optional().describe('narration voice id, e.g. af_heart (A), af_bella (A-), bf_emma (B-, British). Call voila_voices for the full list.'),
+    voice: z.string().optional().describe('default narration voice. Kokoro is ENGLISH ONLY (af_heart, af_bella, bf_emma). For other languages use a macOS system voice ("say:Monica") or set tts_cmd. Per-step `voice:` overrides this, so one demo can mix languages.'),
     speed: z.number().min(0.5).max(1.6).optional().default(1).describe('narration speed; 0.9 reads calmer'),
+    tts_cmd: z.string().optional().describe('external TTS engine template for any language/platform, e.g. \'piper -m es.onnx -f {out} -- "{text}"\'. Placeholders: {out} {text} {voice}.'),
     device: deviceParam,
   },
-  async ({ url, steps_yaml, narrate, voice, speed, device }) => enqueue(async () => {
+  async ({ url, steps_yaml, narrate, voice, speed, tts_cmd, device }) => enqueue(async () => {
     const steps = steps_yaml ? yaml.load(steps_yaml) : null;
     const workDir = path.join(__dirname, 'recordings', `mcp-${Date.now()}`);
     fs.mkdirSync(workDir, { recursive: true });
     const result = await produceDemo(getSession(device), {
-      url, steps, workDir, narrate, voice: voice || null, speed,
+      url, steps, workDir, narrate, voice: voice || null, speed, ttsCmd: tts_cmd || null,
       onStatus: () => {},
     });
     return {
@@ -116,11 +118,19 @@ server.tool(
 
 server.tool(
   'voila_voices',
-  'List every narration voice with its quality grade, best first. Use before voila_record when the ' +
-  'user asks for a different voice, an accent, or a male or female narrator.',
-  {},
-  async () => ({
-    content: [{ type: 'text', text: JSON.stringify(voiceCatalogue.ranked(), null, 2) }],
+  'List narration voices. Kokoro voices are English only, with quality grades. Pass system:true to ' +
+  'also get the machine\'s system voices, which is how you narrate other languages (macOS only; on ' +
+  'Linux or Windows use tts_cmd instead). Use before voila_record when the user asks for a different ' +
+  'voice, an accent, a male or female narrator, or a non-English language.',
+  { system: z.boolean().optional().default(false) },
+  async ({ system }) => ({
+    content: [{ type: 'text', text: JSON.stringify({
+      kokoro: voiceCatalogue.ranked(),
+      englishOnly: true,
+      system: system ? voiceCatalogue.systemVoices() : undefined,
+      systemLanguages: system ? Object.keys(voiceCatalogue.systemLanguages()) : undefined,
+      note: 'Non-English: use a system voice (say:Name) on macOS, or tts_cmd on any platform.',
+    }, null, 2) }],
   })
 );
 

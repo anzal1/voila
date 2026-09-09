@@ -55,4 +55,52 @@ function format() {
   return lines.join('\n');
 }
 
-module.exports = { allVoices, ranked, isValid, suggest, format };
+// --- system voices (macOS `say`) ---------------------------------------------
+// Kokoro is English-only in JS (its other voice files ship without a
+// grapheme-to-phoneme stage for those languages). Every Mac already carries
+// ~180 voices across ~50 languages, so those cover non-English narration.
+
+let sysCache = null;
+function systemVoices() {
+  if (sysCache) return sysCache;
+  sysCache = [];
+  if (process.platform !== 'darwin') return sysCache;
+  try {
+    const { execFileSync } = require('child_process');
+    const out = String(execFileSync('say', ['-v', '?'], { maxBuffer: 4e6 }));
+    for (const line of out.split('\n')) {
+      const m = /^(.+?)\s{2,}([a-z]{2}_[A-Z]{2})\s/.exec(line);
+      if (m) sysCache.push({ id: `say:${m[1].trim()}`, name: m[1].trim(), language: m[2].replace('_', '-'), gender: '', grade: 'system' });
+    }
+  } catch { /* no say binary */ }
+  return sysCache;
+}
+
+function systemLanguages() {
+  const langs = {};
+  for (const v of systemVoices()) (langs[v.language] = langs[v.language] || []).push(v.name);
+  return langs;
+}
+
+function isSystemVoice(id) {
+  if (!id) return false;
+  const name = String(id).replace(/^say:/, '').toLowerCase();
+  return systemVoices().some(v => v.name.toLowerCase() === name);
+}
+
+function formatAll() {
+  const lines = [format()];
+  const langs = systemLanguages();
+  const codes = Object.keys(langs).sort();
+  if (!codes.length) {
+    lines.push('\nSystem voices: none found (macOS only). For other languages use --tts-cmd.');
+    return lines.join('\n');
+  }
+  lines.push(`\nSystem voices (macOS, ${systemVoices().length} across ${codes.length} languages)`);
+  for (const c of codes) lines.push(`  ${c.padEnd(7)} ${langs[c].slice(0, 6).join(', ')}${langs[c].length > 6 ? ` +${langs[c].length - 6}` : ''}`);
+  lines.push('\nUse a system voice for non-English narration:  --voice "say:Monica"');
+  lines.push('Any other engine:  --tts-cmd \'piper --model es.onnx -f {out} -- "{text}"\'');
+  return lines.join('\n');
+}
+
+module.exports = { allVoices, ranked, isValid, suggest, format, formatAll, systemVoices, systemLanguages, isSystemVoice };

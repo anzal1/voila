@@ -40,8 +40,11 @@ class Timeline {
     this.zoom = 1;
     this.center = null;
   }
-  recordSegment(caption, narration, dur = null) {
-    this.segments.push({ t: Date.now(), caption: caption || null, narration: narration || null, dur });
+  recordSegment(caption, narration, dur = null, voice = null, audio = null) {
+    this.segments.push({
+      t: Date.now(), caption: caption || null, narration: narration || null, dur,
+      ...(voice ? { voice } : {}), ...(audio ? { audio } : {}),
+    });
   }
   recordMove(to, dur) {
     this.moves.push({ t: Date.now(), from: { ...this.pos }, to: { ...to }, dur });

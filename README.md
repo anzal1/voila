@@ -73,6 +73,28 @@ on-device, no cloud, no API keys ([audio.js](audio.js)). Falls back to macOS
 `say` if Kokoro can't load. Voices: `af_heart` (default), `af_bella`,
 `am_adam`, … (`voice` param). Disable with `narrate: false` / `--no-narrate`.
 
+**Other languages, and mixing them.** Kokoro's JS port speaks English only, so
+non-English narration comes from one of two other engines, chosen per step:
+
+```yaml
+- action: hover
+  selector: h1
+  narration: "This part is English."          # Kokoro
+- action: scroll_to
+  selector: "#pricing"
+  voice: "say:Mónica"                          # macOS system voice
+  narration: "Esta parte está en español."
+- action: wait
+  ms: 500
+  audio: ./clips/intro-ja.mp3                  # a clip you already have
+```
+
+`voila voices --all` lists the ~180 system voices across ~50 languages on
+macOS. On Linux and Windows use any engine you like:
+`--tts-cmd 'piper -m es.onnx -f {out} -- "{text}"'` ({out}, {text}, {voice}).
+Every step is still paced to its own spoken clip, so mixed-language demos stay
+in sync.
+
 ## Recipes — demos as code
 
 Every video ships with its source: `recipe.json` (URL + steps + narration +

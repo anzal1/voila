@@ -1,0 +1,6 @@
+- action: hover
+  selector: h1
+  caption: "Custom engine"
+  narration: "This clip came from an external text to speech engine."
+- action: wait
+  ms: 500

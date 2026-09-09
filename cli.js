@@ -20,10 +20,10 @@ function arg(name, fallback = null) {
 const USAGE = `usage:
   voila doctor                          (check + download everything voila needs)
   voila outline <url> [--device desktop|mobile|tablet]
-  voila record <url> [--steps f.yaml] [--device mobile] [--voice name] [--speed 1] [--no-narrate] [--headful] [--keep-frames] [--no-dismiss] [--dismiss sel] [--out dir] [--profile dir]
+  voila record <url> [--steps f.yaml] [--device mobile] [--voice name] [--speed 1] [--tts-cmd tmpl] [--no-narrate] [--headful] [--keep-frames] [--no-dismiss] [--dismiss sel] [--out dir] [--profile dir]
   voila review <video.mp4> [--frames 12] [--out dir]
   voila login <url> [--profile dir]     (sign in yourself; session is saved locally)
-  voila voices                          (list every narration voice, best first)
+  voila voices [--all]                  (Kokoro voices; --all adds system voices for other languages)
   voila fork <video.mp4> [--url u] [--voice v] [--print] [--out dir]
   voila rerender <dir> [--voice v] [--speed n]   (needs --keep-frames on the original)
   voila skill   (install the voila skill into ~/.claude/skills)
@@ -49,7 +49,9 @@ const USAGE = `usage:
     process.exit(r.ready ? 0 : 1);
   }
   if (cmd === 'voices') {
-    console.log(require('./voices').format());
+    const v = require('./voices');
+    console.log(process.argv.includes('--all') ? v.formatAll() : v.format());
+    if (!process.argv.includes('--all')) console.log('\nNon-English? run: voila voices --all');
     return;
   }
   if (cmd === 'skill') {
@@ -124,6 +126,7 @@ const USAGE = `usage:
     const r = await rerender(dir, {
       voice: arg('--voice'),
       speed: Number(arg('--speed', '1')) || 1,
+      ttsCmd: arg('--tts-cmd'),
       narrate: !process.argv.includes('--no-narrate'),
       onStatus: m => console.error('[voila]', m),
     });
@@ -166,6 +169,7 @@ const USAGE = `usage:
         narrate: !process.argv.includes('--no-narrate'),
         voice: arg('--voice'),
         speed: Number(arg('--speed', '1')) || 1,
+        ttsCmd: arg('--tts-cmd'),
         keepFrames: process.argv.includes('--keep-frames'),
         onStatus: s => console.error('[voila]', s),
       });

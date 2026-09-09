@@ -44,15 +44,16 @@ function embedRecipe(videoIn, videoOut, recipe) {
   });
 }
 
-async function produceDemo(session, { url, mode = 'auto', steps = null, workDir, voice = null, speed = 1, narrate = true, keepFrames = false, onStatus = () => {} }) {
+async function produceDemo(session, { url, mode = 'auto', steps = null, workDir, voice = null, speed = 1, ttsCmd = null, narrate = true, keepFrames = false, onStatus = () => {} }) {
   // Steps mode: synthesize narration BEFORE recording so segment pacing and
   // caption lifetimes match the spoken clip durations exactly.
   let prepared = null;
   if (steps && narrate) {
-    const texts = steps.filter(s => s.narration).map(s => s.narration);
-    if (texts.length) {
+    const items = steps.filter(s => s.narration)
+      .map(s => ({ text: s.narration, voice: s.voice, audio: s.audio }));
+    if (items.length) {
       try {
-        prepared = await prepareNarration(texts, path.join(workDir, 'tts'), voice, onStatus, speed);
+        prepared = await prepareNarration(items, path.join(workDir, 'tts'), voice, onStatus, speed, ttsCmd);
         let i = 0;
         for (const s of steps) if (s.narration) s._narrDurMs = prepared.clips[i++].durMs;
       } catch (e) {
@@ -69,7 +70,7 @@ async function produceDemo(session, { url, mode = 'auto', steps = null, workDir,
   await render(meta, raw, { onStatus });
 
   let narration = { narrated: false };
-  if (narrate) narration = await addNarration(meta, raw, narrated, { voice, speed, prepared, onStatus });
+  if (narrate) narration = await addNarration(meta, raw, narrated, { voice, speed, ttsCmd, prepared, onStatus });
   else fs.copyFileSync(raw, narrated);
 
   const recipe = buildRecipe({ url, mode, steps, meta });
@@ -88,7 +89,7 @@ async function produceDemo(session, { url, mode = 'auto', steps = null, workDir,
 
 // Re-produce the video from frames already on disk: no browser, no re-driving
 // the page. Used to swap the narration voice or speed after the fact.
-async function rerender(workDir, { voice = null, speed = 1, narrate = true, onStatus = () => {} } = {}) {
+async function rerender(workDir, { voice = null, speed = 1, ttsCmd = null, narrate = true, onStatus = () => {} } = {}) {
   const metaPath = path.join(workDir, 'meta.json');
   if (!fs.existsSync(metaPath)) throw new Error(`no meta.json in ${workDir}`);
   const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
@@ -102,7 +103,7 @@ async function rerender(workDir, { voice = null, speed = 1, narrate = true, onSt
   await render(meta, raw, { onStatus });
 
   let narration = { narrated: false };
-  if (narrate) narration = await addNarration(meta, raw, narrated, { voice, speed, onStatus });
+  if (narrate) narration = await addNarration(meta, raw, narrated, { voice, speed, ttsCmd, onStatus });
   else fs.copyFileSync(raw, narrated);
 
   const recipe = JSON.parse(fs.readFileSync(path.join(workDir, 'recipe.json'), 'utf8'));

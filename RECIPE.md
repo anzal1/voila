@@ -51,6 +51,10 @@ Each step: `{ action, ...params, caption?, narration?, optional?, pause? }`
 | `zoom`      | `level` (1-3) or `selector`, `ms`   | camera zoom; with a selector it frames that element |
 | `wait`      | `ms`                                | hold (cursor keeps breathing on long holds) |
 
+Any step may also carry `voice:` (Kokoro id, `say:Name`, or an id for your
+`--tts-cmd` engine) and `audio:` (a ready-made clip, skipping TTS entirely).
+Because voice is per step, a recipe can mix languages.
+
 `caption` renders as a lower-third; `narration` is spoken by on-device TTS and
 **paces the segment** — the recording holds until the clip finishes, so a
 recreated demo re-times itself to whatever voice regenerates it.

@@ -58,8 +58,12 @@ npx -y voila-recorder rerender <dir> --voice bf_emma
 - Narration style: short sentences, product language, 8-15 words per beat.
 - Prefer `zoom` with a `selector` over a raw `level`: voila measures the element
   and picks the level and camera centre so nothing gets cropped.
-- Voices: 28 English (US/UK). af_heart (A) is the default, af_bella (A-) and
-  bf_emma (British) are the other good ones. `speed` 0.5-1.6 sets pace.
+- Voices: Kokoro is English only (af_heart A, af_bella A-, bf_emma British).
+  `speed` 0.5-1.6 sets pace.
+- Other languages: set `voice:` per narration step, so one demo can mix them.
+  `say:Monica` uses a macOS system voice (~50 languages, `voila voices --all`);
+  `--tts-cmd 'engine -o {out} "{text}"'` plugs in any engine on any platform;
+  `audio: clip.mp3` on a step uses a file you already have.
 - Sign-in walls: recording refuses to film a login page. Run `voila login <url>`
   (or the voila_login tool), let the HUMAN sign in in the window that opens, and
   the session persists in a local profile for every later recording.

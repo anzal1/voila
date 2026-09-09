@@ -242,7 +242,7 @@ async function runSteps(page, tl, steps, opts) {
     const step = steps[si];
     if (step.caption || step.narration) {
       await finishSegment();
-      tl.recordSegment(step.caption, step.narration, step._narrDurMs || null);
+      tl.recordSegment(step.caption, step.narration, step._narrDurMs || null, step.voice || null, step.audio || null);
       segStart = Date.now();
       segMinMs = (step._narrDurMs || 0) + 600;
     }
