@@ -7,7 +7,8 @@ inside the MP4 (spec: voila-recipe/1). Repo: https://github.com/anzal1/voila
 
 ## Install (pick your harness)
 
-Claude Code:
+Claude Code (skill + MCP — recommended):
+  npx -y voila-recorder skill        # installs the voila skill into ~/.claude/skills
   claude mcp add voila -- npx -y voila-recorder mcp
 
 Claude Desktop / Cursor / Windsurf (mcpServers JSON):

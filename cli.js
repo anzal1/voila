@@ -19,6 +19,7 @@ const USAGE = `usage:
   voila outline <url> [--device desktop|mobile|tablet]
   voila record <url> [--steps f.yaml] [--device mobile] [--voice name] [--no-narrate] [--headful] [--out dir] [--profile dir]
   voila review <video.mp4> [--frames 12] [--out dir]
+  voila skill   (install the voila skill into ~/.claude/skills)
   voila serve   (web UI, PORT env or --port)
   voila mcp     (stdio MCP server)`;
 
@@ -32,6 +33,19 @@ const USAGE = `usage:
   }
   if (cmd === 'mcp') {
     require('./mcp');
+    return;
+  }
+  if (cmd === 'skill') {
+    // Install the agent skill the way Clipy does: one command, lands in the
+    // user's skills directory, every future session knows how to demo.
+    const os = require('os');
+    const src = path.join(__dirname, 'skills', 'voila', 'SKILL.md');
+    const dest = path.join(os.homedir(), '.claude', 'skills', 'voila');
+    fs.mkdirSync(dest, { recursive: true });
+    fs.copyFileSync(src, path.join(dest, 'SKILL.md'));
+    console.log(`✓ voila skill installed → ${path.join(dest, 'SKILL.md')}`);
+    console.log('  New Claude Code sessions will pick it up automatically.');
+    console.log('  Pair it with the MCP server: claude mcp add voila -- npx -y voila-recorder mcp');
     return;
   }
   if (cmd === 'review') {

@@ -303,9 +303,10 @@
   <h4 style="font-size:26px; letter-spacing:-.01em; margin-top:64px">Don't install it. <span class="serif" style="color:var(--copper-hot)">Tell your agent to.</span></h4>
   <p style="color:var(--muted); font-size:15.5px; margin-top:8px">Click any block to copy. Agents reading this page: see <a href="llms.txt">llms.txt</a>.</p>
   <div class="installs">
-    <div class="inst" data-copy="claude mcp add voila -- npx -y voila-recorder mcp">
-      <div class="ih">Claude Code</div>
-      <pre>claude mcp add voila -- npx -y voila-recorder mcp</pre>
+    <div class="inst" data-copy="npx -y voila-recorder skill && claude mcp add voila -- npx -y voila-recorder mcp">
+      <div class="ih">Claude Code <span>skill + MCP</span></div>
+      <pre>npx -y voila-recorder skill
+claude mcp add voila -- npx -y voila-recorder mcp</pre>
     </div>
     <div class="inst" data-copy='{ "voila": { "command": "npx", "args": ["-y", "voila-recorder", "mcp"] } }'>
       <div class="ih">Cursor · Windsurf · Claude Desktop <span>mcpServers</span></div>

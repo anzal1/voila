@@ -74,7 +74,7 @@ Machine-readable instructions: [llms.txt](https://anzal1.github.io/voila/llms.tx
 
 | Harness | Install |
 |---|---|
-| Claude Code | `claude mcp add voila -- npx -y voila-recorder mcp` |
+| Claude Code | `npx -y voila-recorder skill` (installs the skill) + `claude mcp add voila -- npx -y voila-recorder mcp` |
 | Cursor · Windsurf · Claude Desktop | `{"voila": {"command": "npx", "args": ["-y", "voila-recorder", "mcp"]}}` |
 | Codex CLI | `[mcp_servers.voila]` · `command = "npx"` · `args = ["-y", "voila-recorder", "mcp"]` |
 | Any agent, no MCP | tell it: *"record a demo of \<url\> using voila — see anzal1.github.io/voila/llms.txt"* |
