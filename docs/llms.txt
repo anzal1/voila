@@ -1,0 +1,68 @@
+# voila — agent instructions
+
+voila records narrated, zoom-animated product demo videos of websites.
+It renders the site in its own Chromium (no screen capture, no OS permission),
+narrates with on-device TTS (Kokoro-82M), and embeds the demo's source recipe
+inside the MP4 (spec: voila-recipe/1). Repo: https://github.com/anzal1/voila
+
+## Install (pick your harness)
+
+Claude Code:
+  claude mcp add voila -- npx -y voila-recorder mcp
+
+Claude Desktop / Cursor / Windsurf (mcpServers JSON):
+  { "voila": { "command": "npx", "args": ["-y", "voila-recorder", "mcp"] } }
+
+Codex CLI (~/.codex/config.toml):
+  [mcp_servers.voila]
+  command = "npx"
+  args = ["-y", "voila-recorder", "mcp"]
+
+No MCP? Use the CLI directly:
+  npx -y voila-recorder outline <url>
+  npx -y voila-recorder record <url> [--steps steps.yaml] [--device mobile|tablet]
+  npx -y voila-recorder review <video.mp4> [--frames 12]
+
+Everything self-provisions on first run (Chromium, ffmpeg, TTS model). Node >= 20.
+
+## MCP tools
+
+- voila_outline(url, device?) -> page structure: nav, headings, buttons/CTAs.
+  Call this FIRST and build selectors from real text; never guess selectors.
+- voila_record(url, steps_yaml?, narrate?, voice?, device?) -> MP4 path,
+  recipe path, warnings. Without steps_yaml it runs a generic auto-tour.
+- voila_review(video_path, frame_count?) -> evenly spaced PNG frames +
+  segment timeline + the recipe extracted from the video.
+
+## Steps YAML
+
+A list of {action, ...params, caption?, narration?, optional?}:
+  goto(url) · click(selector) · hover(selector) · type(selector, text)
+  scroll(y) · scroll_to(selector) · slide(title, subtitle?, accent?, ms?)
+  zoom(level 1-3) · wait(ms)
+
+- caption: burned-in lower-third text.
+- narration: spoken on-device; the recording auto-paces each segment to the
+  spoken clip's length — do not pad waits for narration.
+- Open and close the demo with a slide (animated title card).
+- optional: true -> the step is skipped on failure instead of aborting.
+- On selector failure, the error names the step and includes the live page
+  outline: patch the selector and retry. Prefer a[href='/path'] and ids over
+  text selectors. Append " >> visible=true" when desktop+mobile nav duplicate.
+- device mobile: iPhone emulation, portrait output, zoom disabled by design.
+- Login walls: ask the human to sign in once (record --headful, or the web UI
+  via `npx -y voila-recorder serve`); the session persists in a local profile.
+  Never type credentials yourself.
+
+## The loop (always)
+
+1. outline  2. write steps YAML (caption + narration per beat)
+3. record  4. review -> READ the frames: cursor near what narration discusses,
+captions not covering key UI, zooms centered on content, pages loaded
+5. patch YAML, re-record  6. deliver the MP4
+
+## Recipes
+
+Every voila MP4 carries its own source. Extract from any voila video:
+  ffmpeg -i demo.mp4 -f ffmetadata - | grep voila-recipe
+Recreate/fork by passing the recipe's steps back to voila_record against any URL.
