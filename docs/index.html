@@ -7,6 +7,15 @@
 <meta name="description" content="Paste a URL, get a narrated, zoom-animated product demo video. No screen-recording permission, ever. Fully on-device. Agent-native. The recipe travels inside the video.">
 <meta property="og:title" content="voila — demos that record themselves">
 <meta property="og:description" content="URL in, narrated demo video out. No permissions. On-device. The video carries its own source code.">
+<meta property="og:url" content="https://voila.anzalabidi.dev/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://voila.anzalabidi.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://voila.anzalabidi.dev/og.png">
+<meta name="theme-color" content="#100f0d">
+<link rel="canonical" href="https://voila.anzalabidi.dev/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
@@ -88,7 +97,11 @@
   .heroline { margin-top: 30px; font-size: 18px; color: var(--muted); max-width: 620px; }
   .heroline em { color: var(--copper-hot); font-style: normal; }
 
-  .cta { display: flex; gap: 14px; margin-top: 40px; flex-wrap: wrap; align-items: center; }
+  .cta { display: flex; gap: 22px; margin-top: 40px; flex-wrap: wrap; align-items: flex-start; }
+  .agentbox .al { font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: .18em;
+    color: var(--copper-hot); margin-bottom: 8px; }
+  .agentbox .ah { color: var(--muted); font-size: 13.5px; margin-top: 8px; max-width: 420px; }
+  .cta .btn { margin-top: 27px; }
   .npx {
     font-family: "JetBrains Mono", monospace; font-size: 15.5px;
     background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
@@ -130,8 +143,9 @@
   }
   .term .bar { display: flex; gap: 7px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
   .term .bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--line); }
+  /* fixed height: the typing loop must never change layout below it */
   .term pre { padding: 22px 24px 28px; font-family: "JetBrains Mono", monospace; font-size: 14.5px;
-    line-height: 1.75; color: var(--cream); white-space: pre-wrap; min-height: 240px; }
+    line-height: 1.75; color: var(--cream); white-space: pre-wrap; height: 300px; overflow: hidden; }
   .term .c { color: var(--copper-hot); }
   .term .d { color: var(--muted); }
   .term .g { color: #7fbf7f; }
@@ -175,7 +189,9 @@
     font-size: 13.5px; color: var(--muted); background: var(--ink); padding: 12px 16px; border-radius: 8px; overflow-x: auto; }
 
   /* video */
-  video.demo { width: 100%; border-radius: 16px; border: 1px solid var(--line); margin-top: 44px;
+  /* aspect-ratio reserves the box before metadata loads — no layout jump */
+  video.demo { width: 100%; aspect-ratio: 8 / 5; background: #0c0b09;
+    border-radius: 16px; border: 1px solid var(--line); margin-top: 44px;
     box-shadow: 0 40px 100px rgba(0,0,0,.55); }
 
   /* agents */
@@ -219,7 +235,11 @@
   <p class="heroline">Paste a URL. An agent tours your product and returns a crisp, narrated, zoom-animated MP4.
     <em>No screen-recording permission. No cloud. No API keys.</em> Everything happens on your machine.</p>
   <div class="cta">
-    <div class="npx" id="npx" title="copy"><span class="p">$</span> npx voila-recorder record https://yourapp.com <span class="d">⧉</span></div>
+    <div class="agentbox">
+      <div class="al">FOR YOUR AGENT</div>
+      <div class="npx" id="npx" title="copy"><span class="p">$</span> npx voila-recorder skill <span class="d">⧉</span></div>
+      <p class="ah">One command installs the skill — Claude Code, Cursor, Codex, any harness. Your agent takes it from there. <a href="#agents">All harnesses ↓</a></p>
+    </div>
     <a class="btn" href="#demo">Watch it demo a real product ↓</a>
   </div>
 </section>
@@ -294,7 +314,7 @@
   <video class="demo" src="demo-poached.mp4" controls playsinline preload="metadata"></video>
 </section>
 
-<section class="zoomable" data-cap="Built for the agents. Yours already knows how to use it.">
+<section id="agents" class="zoomable" data-cap="Built for the agents. Yours already knows how to use it.">
   <h3 class="k">Agent-native, <span class="serif">by design.</span></h3>
   <p class="lead">voila ships as an MCP server and a skill. Your agent plans with a page outline, records, then reviews its own frames and iterates — a demo tool that gets better at demos.</p>
   <div class="chips"><span class="chip">voila_outline</span><span class="chip">voila_record</span><span class="chip">voila_review</span><span class="chip">--device mobile</span><span class="chip">optional: true</span></div>
@@ -356,7 +376,7 @@ args = ["-y", "voila-recorder", "mcp"]</pre>
   // copy npx
   const npx = document.getElementById('npx');
   npx.addEventListener('click', () => {
-    navigator.clipboard?.writeText('npx voila-recorder record https://yourapp.com');
+    navigator.clipboard?.writeText('npx -y voila-recorder skill');
     npx.style.borderColor = 'var(--copper-hot)';
     setTimeout(() => npx.style.borderColor = '', 900);
   });
@@ -386,6 +406,7 @@ args = ["-y", "voila-recorder", "mcp"]</pre>
   }
   async function performance_() {
     await new Promise(r => setTimeout(r, 1400));
+    if (scrollY > 40) return; // user already scrolled — don't yank the hero around
     cur.style.opacity = '1';
     const h1 = document.getElementById('h1line').getBoundingClientRect();
     await flyTo(h1.left + h1.width * 0.62, h1.top + h1.height * 0.55, 1300);
@@ -421,11 +442,21 @@ args = ["-y", "voila-recorder", "mcp"]</pre>
   }, { threshold: 0.45 });
   document.querySelectorAll('[data-cap]').forEach(s => io.observe(s));
 
-  // sections get a subtle voila zoom as they enter
+  // sections rise in ONCE, then stop being observed — repeated scale toggling
+  // on scroll caused visible layout shifting
   const zo = new IntersectionObserver(entries => entries.forEach(en => {
-    en.target.style.transform = en.isIntersecting ? 'scale(1)' : 'scale(.985)';
-  }), { threshold: 0.2 });
-  document.querySelectorAll('.zoomable').forEach(s => { s.style.transform = 'scale(.985)'; zo.observe(s); });
+    if (!en.isIntersecting) return;
+    en.target.style.opacity = '1';
+    en.target.style.transform = 'none';
+    zo.unobserve(en.target);
+  }), { threshold: 0.12 });
+  document.querySelectorAll('.zoomable').forEach(s => {
+    if (s.id === 'hero') return;
+    s.style.opacity = '0';
+    s.style.transform = 'translateY(16px)';
+    s.style.transition = 'opacity .8s ease, transform .8s cubic-bezier(.16,1,.3,1)';
+    zo.observe(s);
+  });
 
   // terminal typing loop
   const lines = [
