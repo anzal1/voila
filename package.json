@@ -1,6 +1,6 @@
 {
   "name": "voila-recorder",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Permission-free product demo recorder: URL in, narrated auto-zoomed MP4 out — with the recipe embedded in the video. Agent-native (MCP), fully on-device.",
   "license": "MIT",
   "main": "pipeline.js",
@@ -21,6 +21,7 @@
     "modelcache.js",
     "consent.js",
     "doctor.js",
+    "phonemes.js",
     "voices.js",
     "auth.js",
     "public/",
@@ -54,6 +55,7 @@
     "demos-as-code"
   ],
   "dependencies": {
+    "@echogarden/espeak-ng-emscripten": "^0.3.5",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "express": "^4.19.2",
     "ffmpeg-static": "^5.2.0",

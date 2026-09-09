@@ -64,13 +64,13 @@ Reference: https://voila.anzalabidi.dev/llms.txt · https://github.com/anzal1/vo
   for them in chat.
 - Prefer `zoom` with a `selector` over a bare `level`: voila measures the
   element and picks the level and camera centre, so nothing is cropped.
-- Languages: narration voice is per step, so demos can mix languages. Kokoro
-  is ENGLISH ONLY (af_heart A, af_bella A-, bf_emma British). For other
-  languages use a macOS system voice (`voice: "say:Monica"`, `voila voices
-  --all` lists ~180 across ~50 languages), or `--tts-cmd` with any engine on
-  any platform (placeholders {out} {text} {voice}), or point a step at a
-  ready-made clip with `audio: file.mp3`. On Linux/Windows non-English needs
-  --tts-cmd: tell the user rather than silently narrating in English.
+- Languages: narration voice is per step, so demos can mix languages freely.
+  Kokoro covers English (af_heart A, af_bella A-, bf_emma British), Spanish
+  (ef_dora), French (ff_siwis), Italian (if_sara), Portuguese (pf_dora) and
+  Hindi (hf_alpha) on EVERY platform, on-device. `voila voices` lists all 41.
+  Japanese and Mandarin voices are gated because espeak mispronounces them;
+  for those use `--tts-cmd` with a dedicated engine, a macOS system voice
+  (`voice: "say:Kyoko"`, see `voila voices --all`), or `audio: clip.mp3`.
 - Voices: `voila voices` lists the English voices with quality grades. af_heart
   (A) default, af_bella (A-), af_nicole (B-), bf_emma (B-, British). `--speed`
   or the speed param (0.5-1.6) changes pace; 0.9 reads calmer.

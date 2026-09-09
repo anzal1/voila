@@ -3,6 +3,15 @@
 
 let cache = null;
 
+// Voices the model ships, including the non-English ones kokoro-js leaves out
+// of its metadata. Their language comes from the id prefix.
+function shippedVoiceIds() {
+  const fs = require('fs'), path = require('path');
+  const dir = path.join(path.dirname(require.resolve('kokoro-js')), '..', 'voices');
+  try { return fs.readdirSync(dir).filter(f => f.endsWith('.bin')).map(f => f.replace('.bin', '')); }
+  catch { return []; }
+}
+
 function allVoices() {
   if (cache) return cache;
   const fs = require('fs');
@@ -16,11 +25,30 @@ function allVoices() {
   while ((m = re.exec(src))) {
     out.push({ id: m[1], name: m[2], language: m[3], gender: m[4], grade: m[6] });
   }
+  // Fold in the non-English voices, which ship as files but carry no metadata.
+  const { langOf } = require('./phonemes');
+  const known = new Set(out.map(v => v.id));
+  for (const id of shippedVoiceIds()) {
+    if (known.has(id)) continue;
+    const lang = langOf(id);
+    if (!lang || lang.tier === 'native') continue;
+    out.push({
+      id,
+      name: (id.split('_')[1] || id).replace(/^./, c => c.toUpperCase()),
+      language: lang.name,
+      gender: id[1] === 'f' ? 'Female' : id[1] === 'm' ? 'Male' : '',
+      grade: lang.tier === 'experimental' ? 'experimental' : 'unrated',
+      tier: lang.tier,
+    });
+  }
+  for (const v of out) if (!v.tier) v.tier = 'native';
   cache = out;
   return out;
 }
 
 const gradeRank = g => {
+  if (g === 'unrated') return 6;
+  if (g === 'experimental') return 9;
   const base = { A: 0, B: 1, C: 2, D: 3, F: 4 }[g[0]] ?? 5;
   const mod = g[1] === '+' ? -0.3 : g[1] === '-' ? 0.3 : 0;
   return base + mod;
@@ -46,12 +74,15 @@ function format() {
   for (const v of rows) (byLang[v.language] = byLang[v.language] || []).push(v);
   const lines = [];
   for (const [lang, vs] of Object.entries(byLang)) {
-    lines.push(`\n${lang}  (${vs.length} voices, best first)`);
+    const tier = vs[0].tier;
+    const note = tier === 'experimental' ? '  [experimental: pronunciation is unreliable]' : '';
+    lines.push(`\n${lang}  (${vs.length} voices)${note}`);
     for (const v of vs) {
-      lines.push(`  ${v.id.padEnd(13)} ${v.grade.padEnd(3)} ${v.gender.padEnd(7)} ${v.name}`);
+      lines.push(`  ${v.id.padEnd(13)} ${String(v.grade).padEnd(12)} ${v.gender.padEnd(7)} ${v.name}`);
     }
   }
-  lines.push('\nUse with: --voice af_bella   (also --speed 0.9 to slow the delivery)');
+  lines.push('\nAll of these run on-device on every platform.');
+  lines.push('Use with: --voice ef_dora   (--speed 0.9 slows the delivery)');
   return lines.join('\n');
 }
 

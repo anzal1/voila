@@ -37,7 +37,7 @@ function getSession(device) {
   return sessions.get(key);
 }
 
-const server = new McpServer({ name: 'voila', version: '0.7.0' });
+const server = new McpServer({ name: 'voila', version: '0.8.0' });
 const deviceParam = z.enum(['desktop', 'mobile', 'tablet']).optional().default('desktop');
 
 server.tool(
@@ -69,7 +69,7 @@ server.tool(
     url: z.string().url(),
     steps_yaml: z.string().optional(),
     narrate: z.boolean().optional().default(true),
-    voice: z.string().optional().describe('default narration voice. Kokoro is ENGLISH ONLY (af_heart, af_bella, bf_emma). For other languages use a macOS system voice ("say:Monica") or set tts_cmd. Per-step `voice:` overrides this, so one demo can mix languages.'),
+    voice: z.string().optional().describe('default narration voice. Kokoro speaks English (af_heart, af_bella, bf_emma), Spanish (ef_dora), French (ff_siwis), Italian (if_sara), Portuguese (pf_dora) and Hindi (hf_alpha) on every platform. Per-step `voice:` overrides this, so one demo can mix languages. Japanese/Mandarin are gated (mispronounced) - use tts_cmd for those.'),
     speed: z.number().min(0.5).max(1.6).optional().default(1).describe('narration speed; 0.9 reads calmer'),
     tts_cmd: z.string().optional().describe('external TTS engine template for any language/platform, e.g. \'piper -m es.onnx -f {out} -- "{text}"\'. Placeholders: {out} {text} {voice}.'),
     device: deviceParam,
@@ -118,18 +118,20 @@ server.tool(
 
 server.tool(
   'voila_voices',
-  'List narration voices. Kokoro voices are English only, with quality grades. Pass system:true to ' +
-  'also get the machine\'s system voices, which is how you narrate other languages (macOS only; on ' +
-  'Linux or Windows use tts_cmd instead). Use before voila_record when the user asks for a different ' +
-  'voice, an accent, a male or female narrator, or a non-English language.',
+  'List narration voices. Kokoro covers English, Spanish, French, Italian, Portuguese and Hindi on ' +
+  'every platform, on-device; English voices carry quality grades. Japanese and Mandarin voices exist ' +
+  'but are gated because espeak mispronounces them. Pass system:true to also list the machine\'s own ' +
+  'voices (macOS). Use before voila_record when the user asks for a different voice, an accent, a male ' +
+  'or female narrator, or a non-English language.',
   { system: z.boolean().optional().default(false) },
   async ({ system }) => ({
     content: [{ type: 'text', text: JSON.stringify({
       kokoro: voiceCatalogue.ranked(),
-      englishOnly: true,
+      languages: 'English (US/UK), Spanish, French, Italian, Portuguese (BR), Hindi',
+      gated: 'Japanese and Mandarin: espeak mispronounces them; use tts_cmd or a system voice',
       system: system ? voiceCatalogue.systemVoices() : undefined,
       systemLanguages: system ? Object.keys(voiceCatalogue.systemLanguages()) : undefined,
-      note: 'Non-English: use a system voice (say:Name) on macOS, or tts_cmd on any platform.',
+      note: 'Set voice: per step to mix languages in one demo.',
     }, null, 2) }],
   })
 );

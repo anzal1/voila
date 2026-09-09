@@ -166,8 +166,27 @@ async function prepareNarration(items, dir, defaultVoice, onStatus = () => {}, s
         kokoro = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', { dtype: 'q8' });
       }
       const v = voice && voices.isValid(voice) ? voice : 'af_heart';
-      onStatus(`narrating ${i + 1}/${norm.length} with Kokoro (${v})`);
-      const audio = await kokoro.generate(it.text, { voice: v, speed });
+      const { langOf, phonemize } = require('./phonemes');
+      const lang = langOf(v);
+      onStatus(`narrating ${i + 1}/${norm.length} with Kokoro (${v}, ${lang ? lang.name : 'English'})`);
+
+      let audio;
+      if (lang && lang.tier !== 'native') {
+        // kokoro-js only phonemizes English, so do it ourselves with espeak-ng
+        // (WASM, every platform) and feed the model token ids directly.
+        if (lang.tier === 'experimental' && !process.env.VOILA_EXPERIMENTAL_LANGS) {
+          throw new Error(
+            `${lang.name} voices are experimental: espeak mispronounces them badly ` +
+            `(Japanese leaks English words, Mandarin emits numeric tones Kokoro never saw). ` +
+            `Set VOILA_EXPERIMENTAL_LANGS=1 to try anyway, or use --tts-cmd with a ${lang.name} engine.`
+          );
+        }
+        const ipa = await phonemize(it.text, v);
+        const enc = kokoro.tokenizer(ipa, { truncation: true });
+        audio = await kokoro.generate_from_ids(enc.input_ids, { voice: v, speed });
+      } else {
+        audio = await kokoro.generate(it.text, { voice: v, speed });
+      }
       await audio.save(file);
       clips.push({
         file,

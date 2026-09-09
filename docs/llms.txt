@@ -58,7 +58,7 @@ A list of {action, ...params, caption?, narration?, optional?}:
 - device mobile and tablet: real portrait viewports, zoom disabled by design (narrow layouts crop badly).
 - zoom with a selector is better than zoom with a level: voila measures the
   element and picks both the level and the camera centre, so nothing is cropped.
-- Voices: see "Languages" below. Kokoro is English-only; Best graded: af_heart (A),
+- Voices: see "Languages" below. Kokoro covers 6 languages; Best graded: af_heart (A),
   af_bella (A-), af_nicole (B-), bf_emma (B-, British). voila_voices lists all
   with grades. `speed` (0.5-1.6) changes delivery pace.
 - Login walls: voila_record REFUSES to record a sign-in page and says so. Then
@@ -93,28 +93,24 @@ Recreate/fork by passing the recipe's steps back to voila_record against any URL
 
 ## Languages and mixed-language demos
 
-Narration voice is chosen per step, so one demo can switch language mid-way.
-Set `voice:` on any narration step (it overrides the run-wide voice):
+Kokoro speaks English (US/UK), Spanish, French, Italian, Portuguese (BR)
+and Hindi on every platform, on-device: 41 voices, no OS-specific dependency.
+Set `voice:` per step to mix languages in one demo:
 
   - action: hover
     selector: h1
     narration: "This part is English."
   - action: scroll_to
     selector: "#pricing"
-    voice: "say:Monica"
+    voice: ef_dora
     narration: "Esta parte esta en espanol."
 
-Engines, picked from the voice id:
-  af_heart, bf_emma ...  Kokoro. English only (US/UK), best quality, all platforms.
-  say:Monica, say:Lekha  System voices. macOS only, ~50 languages, ~180 voices.
-                         List them with `voila voices --all`.
-  --tts-cmd '<template>'  Any external engine, any language, any platform.
-                         Placeholders: {out} {text} {voice}. Example:
-                         --tts-cmd 'piper -m es.onnx -f {out} -- "{text}"'
-  audio: path/to.mp3      A step can supply a ready-made clip and skip TTS.
+`voila voices` lists all of them. Japanese and Mandarin voices exist but are
+gated: espeak mispronounces them (Japanese leaks English words, Mandarin emits
+numeric tones the model never saw). Use --tts-cmd with a dedicated engine for
+those, or VOILA_EXPERIMENTAL_LANGS=1 to hear it anyway.
 
-Non-English on Linux or Windows needs --tts-cmd, because Kokoro's JS port is
-English-only and system voices are macOS-only. Say so plainly rather than
-promising a language voila cannot speak on that machine.
-Burned-in captions in non-Latin scripts depend on the fonts installed on the
-recording machine.
+Other engines remain available for anything Kokoro cannot say:
+  --tts-cmd 'piper -m ja.onnx -f {out} -- "{text}"'   any engine, any platform
+  voice: "say:Kyoko"                                   macOS system voices
+  audio: clip.mp3                                      a ready-made clip
