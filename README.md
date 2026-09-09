@@ -11,22 +11,32 @@ your machine, and the script to rebuild the video is embedded inside the video.
 
 ## See it
 
-This video was recorded by voila, of its own landing page, using its own recipe.
+A full tour of voila, recorded by voila, of its own website, using its own
+recipe. Sound on: it narrates in English, and switches to Spanish and French
+partway through without changing anything but one line per step.
 
-<video src="https://voila.anzalabidi.dev/demo-launch.mp4" poster="https://voila.anzalabidi.dev/poster-launch.jpg" controls muted playsinline width="100%"></video>
+<video src="https://voila.anzalabidi.dev/demo-tour.mp4" poster="https://voila.anzalabidi.dev/poster-tour.jpg" controls muted playsinline width="100%"></video>
 
-[![Watch the launch demo](https://voila.anzalabidi.dev/poster-launch.jpg)](https://voila.anzalabidi.dev/demo-launch.mp4)
+[![Watch the full tour](https://voila.anzalabidi.dev/poster-tour.jpg)](https://voila.anzalabidi.dev/demo-tour.mp4)
 
 *(If the player above does not load, the image is a link to the MP4.)*
+The script behind it is [`site-tour.yaml`](site-tour.yaml), and it is embedded
+inside the video itself: `ffmpeg -i demo-tour.mp4 -f ffmetadata - | grep voila-recipe`
 
-### Six languages, in one recording
+<details>
+<summary>More demos</summary>
 
-English, then Spanish, then French, then Hindi, all from one 80MB on-device
-model. Sound on.
+**A real product** ([poached.me](https://poached.me)), scripted, narrated and
+self-reviewed by an agent:
+[watch](https://voila.anzalabidi.dev/demo-poached.mp4) ·
+[script](poached-demo.yaml)
 
-<video src="https://voila.anzalabidi.dev/demo-languages.mp4" poster="https://voila.anzalabidi.dev/poster-languages.jpg" controls muted playsinline width="100%"></video>
+**Six languages in one recording**, English then Spanish then French then
+Hindi, all from one 80MB on-device model:
+[watch](https://voila.anzalabidi.dev/demo-languages.mp4) ·
+[script](languages-demo.yaml)
 
-[![Watch the multilingual demo](https://voila.anzalabidi.dev/poster-languages.jpg)](https://voila.anzalabidi.dev/demo-languages.mp4)
+</details>
 
 ## Quick start
 

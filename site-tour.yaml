@@ -1,0 +1,127 @@
+# The full voila tour: every section of the site, recorded by voila itself.
+
+- action: slide
+  title: "voila."
+  subtitle: "Demos that record themselves"
+  accent: "#c87840"
+  narration: "This is voila. And this video was recorded by voila, of its own website."
+  ms: 4200
+
+- action: hover
+  selector: h1
+  caption: "Demos that record themselves"
+  narration: "Paste a URL, and an agent tours your product and returns a narrated, zoom animated demo video."
+- action: zoom
+  level: 1.3
+- action: wait
+  ms: 900
+- action: zoom
+  level: 1
+
+- action: zoom
+  selector: ".promptcard"
+  caption: "One prompt. That is the install."
+  narration: "You never open a terminal. You paste one prompt to your coding agent, and it does the rest."
+- action: wait
+  ms: 1200
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: ".steps"
+  caption: "Your screen is never touched"
+  narration: "Nothing captures your screen. voila renders your site inside its own browser and pulls frames straight from the rendering engine, so there is no permission to grant."
+- action: zoom
+  selector: ".steps .step"
+- action: wait
+  ms: 1100
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: ".term"
+  caption: "One command"
+  narration: "Prefer the terminal? One command records, narrates, and embeds everything it needs to rebuild itself."
+- action: wait
+  ms: 2600
+
+- action: scroll_to
+  selector: "#recipecode"
+  caption: "Demos as code"
+  narration: "Every demo is a readable script. Change a line, record again. When your product ships a redesign, the demo rebuilds."
+- action: zoom
+  selector: "#recipecode"
+- action: wait
+  ms: 1300
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: ".mp4box"
+  caption: "The video carries its own source"
+  narration: "And the script lives inside the MP4 itself. Send someone the file, and their agent can extract it and rebuild the demo against their own product."
+- action: zoom
+  selector: ".mp4icon"
+- action: wait
+  ms: 1200
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: "#demo"
+  caption: "A real product, demoed by an agent"
+  narration: "Here is a real product it demoed end to end: scripted, narrated, and reviewed by an agent that watched its own frames."
+- action: wait
+  ms: 2200
+
+- action: scroll_to
+  selector: "#languages"
+  caption: "It speaks your language"
+  narration: "voila narrates in six languages from one eighty megabyte model, running on your own machine."
+- action: zoom
+  selector: ".langgrid"
+- action: wait
+  ms: 1100
+
+- action: hover
+  selector: ".lang:nth-child(2)"
+  caption: "Español, en la misma grabación"
+  voice: ef_dora
+  narration: "Cambias la voz en un solo paso, y la narración continúa en español."
+- action: wait
+  ms: 600
+
+- action: hover
+  selector: ".lang:nth-child(3)"
+  caption: "Français, sans configuration"
+  voice: ff_siwis
+  narration: "Aucun service en ligne, aucune clé, aucune permission."
+- action: wait
+  ms: 600
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: "#agents .loop"
+  caption: "It reviews its own work"
+  narration: "Back in English. voila is built for agents: it records, looks at its own frames, fixes what it got wrong, and records again."
+- action: zoom
+  selector: "#agents .loop"
+- action: wait
+  ms: 1200
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: ".installs"
+  caption: "Every harness"
+  narration: "Claude Code, Cursor, Codex, or any agent at all. One command installs the skill."
+- action: wait
+  ms: 2000
+
+- action: slide
+  title: "Recorded by itself."
+  subtitle: "voila.anzalabidi.dev · npx voila-recorder skill"
+  accent: "#c87840"
+  narration: "Open source, on your machine, and recorded by the thing it is about. voila."
+  ms: 5000
