@@ -20,16 +20,18 @@ jobs:
         with:
           node-version: 20
       - run: npm install --no-audit --no-fund
-      - name: install chromium (retry; hosted apt mirrors are flaky)
+      - name: install chromium
         shell: bash
         run: |
-          for i in 1 2 3; do
-            npx playwright install --with-deps chromium && exit 0
-            echo "attempt $i failed, retrying"
-            if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update || true; fi
-            sleep 20
-          done
-          exit 1
+          # Playwright's --with-deps runs apt-get, which updates every configured
+          # repo. The runner ships Google's chrome repo, which we do not need and
+          # which intermittently serves a bad index. Drop it first.
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo rm -f /etc/apt/sources.list.d/google-chrome.list || true
+            sudo apt-get update || true
+          fi
+          npx playwright install --with-deps chromium \
+            || npx playwright install chromium
       - name: record a demo (no narration)
         run: node cli.js record https://example.com --no-narrate --out ci-out
       - name: verify the mp4 exists and carries its recipe
@@ -61,16 +63,18 @@ jobs:
         with:
           node-version: 20
       - run: npm install --no-audit --no-fund
-      - name: install chromium (retry; hosted apt mirrors are flaky)
+      - name: install chromium
         shell: bash
         run: |
-          for i in 1 2 3; do
-            npx playwright install --with-deps chromium && exit 0
-            echo "attempt $i failed, retrying"
-            if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update || true; fi
-            sleep 20
-          done
-          exit 1
+          # Playwright's --with-deps runs apt-get, which updates every configured
+          # repo. The runner ships Google's chrome repo, which we do not need and
+          # which intermittently serves a bad index. Drop it first.
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo rm -f /etc/apt/sources.list.d/google-chrome.list || true
+            sudo apt-get update || true
+          fi
+          npx playwright install --with-deps chromium \
+            || npx playwright install chromium
       - name: record with on-device TTS
         run: node cli.js record https://example.com --steps ci-narrate.yaml --out ci-out
       - name: verify audio track is present
