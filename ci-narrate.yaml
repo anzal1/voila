@@ -1,0 +1,6 @@
+- action: hover
+  selector: h1
+  caption: "Continuous integration check"
+  narration: "This demo was recorded and narrated inside continuous integration."
+- action: wait
+  ms: 800
