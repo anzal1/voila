@@ -1,0 +1,52 @@
+# The multilingual showcase: one model, four languages, one recording.
+
+- action: slide
+  title: "One model. Six languages."
+  subtitle: "On your machine, on every platform"
+  accent: "#c87840"
+  narration: "One model. Six languages. All of it running on your own machine."
+  ms: 3800
+
+- action: scroll_to
+  selector: "#languages"
+  caption: "It speaks your language"
+  narration: "voila narrates in English, Spanish, French, Italian, Portuguese and Hindi."
+- action: zoom
+  selector: ".langgrid"
+- action: wait
+  ms: 900
+- action: zoom
+  level: 1
+
+- action: zoom
+  selector: "#languages .code"
+  caption: "Español — misma grabación"
+  voice: ef_dora
+  narration: "Cambias la voz en un paso, y la narración continúa en español."
+- action: wait
+  ms: 700
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: ".steps"
+  caption: "Français — même vidéo"
+  voice: ff_siwis
+  narration: "Aucun service en ligne, aucune clé, aucune permission."
+- action: wait
+  ms: 700
+
+- action: scroll_to
+  selector: ".term"
+  caption: "हिन्दी — एक ही रिकॉर्डिंग"
+  voice: hf_alpha
+  narration: "यह पूरा वीडियो आपके अपने कंप्यूटर पर बना है।"
+- action: wait
+  ms: 700
+
+- action: slide
+  title: "voila."
+  subtitle: "npx voila-recorder skill"
+  accent: "#c87840"
+  narration: "One recorder, every language, no cloud. voila."
+  ms: 4000

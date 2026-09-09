@@ -232,6 +232,12 @@
     padding: 7px 13px; border-radius: 8px; }
   .loop .arr { color: var(--copper-hot); }
 
+  /* languages */
+  .langgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 34px; }
+  .lang { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 15px 17px; }
+  .lang b { display: block; font-size: 17px; letter-spacing: -.01em; }
+  .lang span { display: block; margin-top: 5px; font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--muted); }
+
   /* agent install matrix */
   .installs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
   @media (max-width: 820px) { .installs { grid-template-columns: 1fr; } }
@@ -297,8 +303,8 @@
 </section>
 
 <div id="wire"><div class="track">
-  <span><b>● REC</b> ZERO PERMISSIONS</span><span>ON-DEVICE TTS <b>KOKORO-82M</b></span><span>THE RECIPE TRAVELS <b>INSIDE THE MP4</b></span><span>AGENT-NATIVE <b>MCP + SKILL</b></span><span>SELF-REVIEWING <b>RECORD → LOOK → FIX</b></span><span>MOBILE · TABLET · DESKTOP</span>
-  <span><b>● REC</b> ZERO PERMISSIONS</span><span>ON-DEVICE TTS <b>KOKORO-82M</b></span><span>THE RECIPE TRAVELS <b>INSIDE THE MP4</b></span><span>AGENT-NATIVE <b>MCP + SKILL</b></span><span>SELF-REVIEWING <b>RECORD → LOOK → FIX</b></span><span>MOBILE · TABLET · DESKTOP</span>
+  <span><b>● REC</b> ZERO PERMISSIONS</span><span>ON-DEVICE TTS <b>KOKORO-82M</b></span><span>THE RECIPE TRAVELS <b>INSIDE THE MP4</b></span><span>AGENT-NATIVE <b>MCP + SKILL</b></span><span>SPEAKS <b>6 LANGUAGES</b></span><span>MOBILE · TABLET · DESKTOP</span>
+  <span><b>● REC</b> ZERO PERMISSIONS</span><span>ON-DEVICE TTS <b>KOKORO-82M</b></span><span>THE RECIPE TRAVELS <b>INSIDE THE MP4</b></span><span>AGENT-NATIVE <b>MCP + SKILL</b></span><span>SPEAKS <b>6 LANGUAGES</b></span><span>MOBILE · TABLET · DESKTOP</span>
 </div></div>
 
 <section class="zoomable" data-cap="No screen capture. The page is rendered in a browser voila owns.">
@@ -364,6 +370,44 @@
   <h3 class="k">Seeing is <span class="serif">believing.</span></h3>
   <p class="lead">This is poached.me, demoed end-to-end by an agent: it read the page, wrote the script, recorded the tour, reviewed its own frames, and fixed its own mistakes. Sound on.</p>
   <video class="demo" src="demo-poached.mp4" controls playsinline preload="metadata"></video>
+</section>
+
+<section id="languages" class="zoomable" data-cap="Six languages from one model, on every platform.">
+  <h3 class="k">It speaks your <span class="serif">language.</span></h3>
+  <p class="lead">Six languages from one 80MB model, running on your own machine. Set the voice per step and a single demo can switch language mid-sentence. No cloud, no keys, no per-platform tricks.</p>
+
+  <div class="langgrid">
+    <div class="lang"><b>English</b><span>af_heart · af_bella · bf_emma</span></div>
+    <div class="lang"><b>Español</b><span>ef_dora · em_alex</span></div>
+    <div class="lang"><b>Français</b><span>ff_siwis</span></div>
+    <div class="lang"><b>Italiano</b><span>if_sara · im_nicola</span></div>
+    <div class="lang"><b>Português</b><span>pf_dora · pm_alex</span></div>
+    <div class="lang"><b>हिन्दी</b><span>hf_alpha · hm_omega</span></div>
+  </div>
+
+  <div class="split" style="margin-top:34px">
+    <div class="code">
+<span class="row"><span class="y">- action:</span> hover</span>
+<span class="row">  <span class="y">selector:</span> h1</span>
+<span class="row">  <span class="y">narration:</span> <span class="s">"This part is English."</span></span>
+<span class="row"><span class="y">- action:</span> scroll_to</span>
+<span class="row">  <span class="y">selector:</span> <span class="s">"#pricing"</span></span>
+<span class="row">  <span class="y">voice:</span> <span class="s">ef_dora</span></span>
+<span class="row">  <span class="y">narration:</span> <span class="s">"Esta parte está en español."</span></span>
+<span class="row"><span class="y">- action:</span> scroll_to</span>
+<span class="row">  <span class="y">selector:</span> <span class="s">"#docs"</span></span>
+<span class="row">  <span class="y">voice:</span> <span class="s">hf_alpha</span></span>
+<span class="row">  <span class="y">narration:</span> <span class="s">"यह भाग हिंदी में है।"</span></span>
+    </div>
+    <div class="stage" style="min-height:auto;padding:26px">
+      <h4 style="font-size:19px;margin-bottom:12px">Why this was hard</h4>
+      <p style="color:var(--muted);font-size:14.5px;line-height:1.6">The model ships 54 voices, but its JavaScript port could only pronounce English: the bundled phonemizer had English data only. voila adds espeak-ng compiled to WebAssembly, so the other languages get real pronunciation on Linux, macOS and Windows alike.</p>
+      <p style="color:var(--muted);font-size:14.5px;line-height:1.6;margin-top:12px">Japanese and Mandarin voices exist too, but espeak mispronounces them, so voila refuses rather than shipping you a bad take. Plug in any engine with <code style="color:var(--copper-hot)">--tts-cmd</code> for those.</p>
+    </div>
+  </div>
+
+  <video class="demo" src="demo-languages.mp4" controls playsinline preload="metadata" style="margin-top:36px"></video>
+  <p style="color:var(--muted);font-size:14px;margin-top:10px;text-align:center">One recording, four languages. Sound on.</p>
 </section>
 
 <section id="agents" class="zoomable" data-cap="Built for the agents. Yours already knows how to use it.">
