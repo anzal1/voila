@@ -1,0 +1,69 @@
+# The recursive demo: voila records its own landing page.
+
+- action: slide
+  title: "voila."
+  subtitle: "Demos that record themselves"
+  accent: "#c87840"
+  narration: "This is voila. And yes — voila is recording this page right now."
+  ms: 3800
+
+- action: hover
+  selector: h1
+  caption: "Demos that record themselves"
+  narration: "Paste a URL. An agent tours your product and returns a narrated, zoom-animated demo video. No screen recording permission. Ever."
+- action: zoom
+  level: 1.4
+- action: wait
+  ms: 1200
+- action: zoom
+  level: 1.05
+
+- action: scroll_to
+  selector: ".steps"
+  caption: "Render. Direct. Speak."
+  narration: "It renders your site in its own browser, directs the camera like an editor, and narrates with an open source voice — all on your machine."
+- action: zoom
+  level: 1.3
+- action: wait
+  ms: 900
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: ".term"
+  caption: "One command"
+  narration: "One command. The agent writes the script, records the tour, and reviews its own frames."
+- action: wait
+  ms: 1500
+
+- action: scroll_to
+  selector: "#recipecode"
+  caption: "Demos as code"
+  narration: "Every demo is a Y A M L recipe. And the recipe travels inside the video file itself — view source, for videos."
+- action: zoom
+  level: 1.25
+- action: wait
+  ms: 1000
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: "#demo"
+  caption: "A real product, demoed by an agent"
+  narration: "Here's a real product it demoed — scripted, narrated, and self-reviewed by an agent."
+- action: wait
+  ms: 1500
+
+- action: scroll_to
+  selector: ".loop"
+  caption: "Agent-native, by design"
+  narration: "Outline. Script. Record. Look at its own frames. Fix. Ship."
+- action: wait
+  ms: 800
+
+- action: slide
+  title: "Recorded by itself."
+  subtitle: "voila — github.com/anzal1/voila"
+  accent: "#c87840"
+  narration: "voila. This video was recorded by the thing it is about."
+  ms: 4200

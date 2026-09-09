@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>voila — demos that record themselves</title>
+<meta name="description" content="Paste a URL, get a narrated, zoom-animated product demo video. No screen-recording permission, ever. Fully on-device. Agent-native. The recipe travels inside the video.">
+<meta property="og:title" content="voila — demos that record themselves">
+<meta property="og:description" content="URL in, narrated demo video out. No permissions. On-device. The video carries its own source code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #100f0d;          /* warm black */
+    --ink-2: #171511;
+    --panel: #1c1915;
+    --line: #2c2721;
+    --cream: #f2ede4;
+    --muted: #a89e8f;
+    --copper: #c87840;       /* oxidised copper */
+    --copper-hot: #e8905a;
+    --blue: #6ea5ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--ink); color: var(--cream);
+    font: 17px/1.6 "Space Grotesk", -apple-system, system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--copper); color: var(--ink); }
+  a { color: var(--copper-hot); text-decoration: none; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .serif { font-family: "Instrument Serif", Georgia, serif; font-style: italic; }
+
+  /* ---------- recording chrome ---------- */
+  #rec {
+    position: fixed; top: 18px; left: 20px; z-index: 90;
+    display: flex; align-items: center; gap: 9px;
+    font-family: "JetBrains Mono", monospace; font-size: 13px; letter-spacing: .08em;
+    color: var(--muted); background: rgba(16,15,13,.72); backdrop-filter: blur(8px);
+    border: 1px solid var(--line); border-radius: 99px; padding: 7px 14px;
+  }
+  #rec .dot { width: 9px; height: 9px; border-radius: 50%; background: #e5484d; animation: blink 1.2s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+
+  #corners { position: fixed; inset: 10px; z-index: 89; pointer-events: none; opacity: .5; }
+  #corners i { position: absolute; width: 26px; height: 26px; border: 2px solid var(--line); }
+  #corners i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+  #corners i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+  #corners i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+  #corners i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+  /* self-narration caption */
+  #caption {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(8px);
+    z-index: 90; max-width: min(88vw, 640px); text-align: center;
+    background: rgba(12,11,9,.82); backdrop-filter: blur(8px);
+    border-radius: 12px; padding: 10px 20px; font-size: 15.5px; font-weight: 500;
+    opacity: 0; transition: opacity .35s ease, transform .35s ease; pointer-events: none;
+  }
+  #caption.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* the voila cursor */
+  #vcursor { position: fixed; left: 0; top: 0; z-index: 95; pointer-events: none;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,.5)); transition: opacity .4s; }
+
+  .ripple { position: fixed; border-radius: 50%; border: 3px solid rgba(110,165,255,.9);
+    pointer-events: none; z-index: 94; }
+
+  /* ---------- layout ---------- */
+  section { max-width: 1060px; margin: 0 auto; padding: 110px 28px; position: relative; }
+  .zoomable { transition: transform 1.2s cubic-bezier(.16,1,.3,1); transform-origin: 50% 38%; }
+
+  /* hero */
+  #hero { min-height: 92vh; display: flex; flex-direction: column; justify-content: center; padding-top: 90px; }
+  #hero h1 {
+    font-size: clamp(72px, 14vw, 168px); font-weight: 700; letter-spacing: -.045em; line-height: .95;
+  }
+  #hero h1 .dot { color: var(--copper-hot); }
+  #hero h2 { font-size: clamp(22px, 3.4vw, 38px); font-weight: 400; margin-top: 18px; color: var(--muted); letter-spacing: -.01em; }
+  #hero h2 b { color: var(--cream); font-weight: 500; }
+  .word { display: inline-block; opacity: 0; transform: translateY(40px); }
+  .risen .word { animation: rise .7s cubic-bezier(.16,1,.3,1) forwards; }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  .heroline { margin-top: 30px; font-size: 18px; color: var(--muted); max-width: 620px; }
+  .heroline em { color: var(--copper-hot); font-style: normal; }
+
+  .cta { display: flex; gap: 14px; margin-top: 40px; flex-wrap: wrap; align-items: center; }
+  .npx {
+    font-family: "JetBrains Mono", monospace; font-size: 15.5px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 20px; cursor: pointer; color: var(--cream); display: flex; gap: 12px; align-items: center;
+    transition: border-color .2s;
+  }
+  .npx:hover { border-color: var(--copper); }
+  .npx .p { color: var(--copper-hot); }
+  .btn {
+    display: inline-block; background: var(--copper); color: var(--ink); font-weight: 700;
+    border-radius: 10px; padding: 14px 24px; font-size: 16px; transition: background .2s;
+  }
+  .btn:hover { background: var(--copper-hot); }
+
+  /* wire ticker */
+  #wire { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    overflow: hidden; padding: 13px 0; background: var(--ink-2); }
+  #wire .track { display: flex; gap: 48px; white-space: nowrap; width: max-content;
+    animation: wire 26s linear infinite; font-family: "JetBrains Mono", monospace;
+    font-size: 13.5px; letter-spacing: .1em; color: var(--muted); }
+  #wire b { color: var(--copper-hot); font-weight: 600; }
+  @keyframes wire { to { transform: translateX(-50%); } }
+
+  h3.k { font-size: clamp(34px, 5.5vw, 56px); letter-spacing: -.03em; line-height: 1.08; margin-bottom: 18px; }
+  h3.k .serif { color: var(--copper-hot); font-size: 1.05em; }
+  p.lead { color: var(--muted); max-width: 640px; font-size: 18px; }
+
+  /* how */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; margin-top: 48px; }
+  .step { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
+  .step .n { font-family: "JetBrains Mono", monospace; color: var(--copper-hot); font-size: 13px; letter-spacing: .12em; }
+  .step h4 { font-size: 22px; margin: 10px 0 8px; letter-spacing: -.01em; }
+  .step p { color: var(--muted); font-size: 15.5px; }
+
+  /* terminal */
+  .term {
+    background: #0c0b09; border: 1px solid var(--line); border-radius: 14px;
+    margin-top: 44px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5);
+  }
+  .term .bar { display: flex; gap: 7px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
+  .term .bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--line); }
+  .term pre { padding: 22px 24px 28px; font-family: "JetBrains Mono", monospace; font-size: 14.5px;
+    line-height: 1.75; color: var(--cream); white-space: pre-wrap; min-height: 240px; }
+  .term .c { color: var(--copper-hot); }
+  .term .d { color: var(--muted); }
+  .term .g { color: #7fbf7f; }
+  .cursor-block::after { content: "▊"; animation: blink 1s steps(2) infinite; color: var(--copper-hot); }
+
+  /* recipe split */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 46px; align-items: stretch; }
+  @media (max-width: 860px) { .split { grid-template-columns: 1fr; } }
+  .code {
+    background: #0c0b09; border: 1px solid var(--line); border-radius: 14px; padding: 22px;
+    font-family: "JetBrains Mono", monospace; font-size: 13.5px; line-height: 1.7; overflow-x: auto;
+  }
+  .code .y { color: var(--copper-hot); }
+  .code .s { color: #b8c98f; }
+  .code .row { display: block; border-radius: 6px; padding: 0 8px; margin: 0 -8px; transition: background .3s; }
+  .code .row.hot { background: rgba(200,120,64,.16); }
+  .stage { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; position: relative;
+    overflow: hidden; min-height: 340px; }
+  .stage .mini { position: absolute; inset: 26px; background: var(--ink); border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden; transition: transform 1s cubic-bezier(.16,1,.3,1); transform-origin: 30% 30%; }
+  .mini .mbar { height: 26px; border-bottom: 1px solid var(--line); background: var(--ink-2);
+    display: flex; align-items: center; padding: 0 10px; gap: 5px; }
+  .mini .mbar i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  .mini .h { height: 15px; background: var(--line); border-radius: 4px; margin: 18px 16px 8px; width: 62%; }
+  .mini .h2 { height: 15px; background: var(--copper); opacity: .75; border-radius: 4px; margin: 0 16px; width: 40%; }
+  .mini .l { height: 8px; background: var(--line); border-radius: 4px; margin: 10px 16px 0; opacity: .6; }
+  .mini .btnm { height: 26px; width: 96px; background: var(--copper); border-radius: 6px; margin: 16px; }
+  .mini .cur { position: absolute; left: 30%; top: 40%; transition: left 1s cubic-bezier(.16,1,.3,1), top 1s cubic-bezier(.16,1,.3,1); }
+  .stage .cap { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    background: rgba(12,11,9,.85); border-radius: 8px; padding: 5px 14px; font-size: 12.5px; font-weight: 600;
+    opacity: 0; transition: opacity .3s; white-space: nowrap; }
+  .stage .cap.on { opacity: 1; }
+
+  /* mp4 source reveal */
+  .mp4box { margin-top: 46px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+    padding: 30px; display: grid; grid-template-columns: auto 1fr; gap: 26px; align-items: center; }
+  @media (max-width: 720px) { .mp4box { grid-template-columns: 1fr; } }
+  .mp4icon { font-family: "JetBrains Mono", monospace; background: var(--ink); border: 1px solid var(--line);
+    border-radius: 12px; padding: 26px 30px; font-size: 22px; font-weight: 600; color: var(--copper-hot); }
+  .mp4box code { display: block; margin-top: 12px; font-family: "JetBrains Mono", monospace;
+    font-size: 13.5px; color: var(--muted); background: var(--ink); padding: 12px 16px; border-radius: 8px; overflow-x: auto; }
+
+  /* video */
+  video.demo { width: 100%; border-radius: 16px; border: 1px solid var(--line); margin-top: 44px;
+    box-shadow: 0 40px 100px rgba(0,0,0,.55); }
+
+  /* agents */
+  .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
+  .chip { font-family: "JetBrains Mono", monospace; font-size: 13.5px; background: var(--ink);
+    border: 1px solid var(--line); padding: 8px 14px; border-radius: 99px; color: var(--copper-hot); }
+  .loop { margin-top: 34px; font-family: "JetBrains Mono", monospace; font-size: 14.5px; color: var(--muted);
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .loop b { color: var(--cream); font-weight: 600; background: var(--panel); border: 1px solid var(--line);
+    padding: 7px 13px; border-radius: 8px; }
+  .loop .arr { color: var(--copper-hot); }
+
+  footer { border-top: 1px solid var(--line); padding: 54px 28px 70px; text-align: center; color: var(--muted); font-size: 15px; }
+  footer .meta { margin-top: 10px; font-family: "JetBrains Mono", monospace; font-size: 13px; }
+  footer .meta b { color: var(--copper-hot); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div id="rec"><span class="dot"></span> REC <span id="tc">00:00:00</span></div>
+<div id="corners"><i></i><i></i><i></i><i></i></div>
+<div id="caption"></div>
+<div id="vcursor" style="opacity:0">
+  <svg width="26" height="30" viewBox="0 0 26 30"><path d="M3 1.5 L3 24 L8.7 18.8 L12.6 27.6 L16.4 25.9 L12.5 17.2 L20 16.6 Z" fill="#1b1b1f" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/></svg>
+</div>
+
+<section id="hero" class="zoomable" data-cap="This is voila. It is recording this page right now.">
+  <h1 id="h1line"><span class="word">voila</span><span class="word dot">.</span></h1>
+  <h2 id="h2line"><span class="word">Demos</span> <span class="word">that</span> <span class="word"><b>record</b></span> <span class="word"><b>themselves</b></span><span class="word">.</span></h2>
+  <p class="heroline">Paste a URL. An agent tours your product and returns a crisp, narrated, zoom-animated MP4.
+    <em>No screen-recording permission. No cloud. No API keys.</em> Everything happens on your machine.</p>
+  <div class="cta">
+    <div class="npx" id="npx" title="copy"><span class="p">$</span> npx voila-recorder record https://yourapp.com <span class="d">⧉</span></div>
+    <a class="btn" href="#demo">Watch it demo a real product ↓</a>
+  </div>
+</section>
+
+<div id="wire"><div class="track">
+  <span><b>● REC</b> ZERO PERMISSIONS</span><span>ON-DEVICE TTS <b>KOKORO-82M</b></span><span>THE RECIPE TRAVELS <b>INSIDE THE MP4</b></span><span>AGENT-NATIVE <b>MCP + SKILL</b></span><span>SELF-REVIEWING <b>RECORD → LOOK → FIX</b></span><span>MOBILE · TABLET · DESKTOP</span>
+  <span><b>● REC</b> ZERO PERMISSIONS</span><span>ON-DEVICE TTS <b>KOKORO-82M</b></span><span>THE RECIPE TRAVELS <b>INSIDE THE MP4</b></span><span>AGENT-NATIVE <b>MCP + SKILL</b></span><span>SELF-REVIEWING <b>RECORD → LOOK → FIX</b></span><span>MOBILE · TABLET · DESKTOP</span>
+</div></div>
+
+<section class="zoomable" data-cap="No screen capture. The page is rendered in a browser voila owns.">
+  <h3 class="k">Your screen is never <span class="serif">touched.</span></h3>
+  <p class="lead">Screen recorders capture your display — so they need permissions, and they see everything.
+  voila never looks at your screen. It renders your site inside its own headless Chromium and pulls frames
+  straight from the rendering engine. Sharper than any screen recording, and there is nothing to grant.</p>
+  <div class="steps">
+    <div class="step"><div class="n">01 · RENDER</div><h4>Own browser</h4><p>2× retina frames via the DevTools protocol. Log in once in a local profile — credentials never pass through voila.</p></div>
+    <div class="step"><div class="n">02 · DIRECT</div><h4>Agent as director</h4><p>An agent reads your page, writes the script: cursor moves, clicks with ripples, camera zooms, animated title slides.</p></div>
+    <div class="step"><div class="n">03 · SPEAK</div><h4>On-device voice</h4><p>Kokoro-82M — open source, 80MB, runs on CPU — narrates every beat. Captions sync to the voice, automatically.</p></div>
+  </div>
+</section>
+
+<section class="zoomable" data-cap="One command. The agent does the rest.">
+  <h3 class="k">Watch the terminal <span class="serif">do the work.</span></h3>
+  <div class="term">
+    <div class="bar"><i></i><i></i><i></i></div>
+    <pre id="termout"></pre>
+  </div>
+</section>
+
+<section class="zoomable" data-cap="The recipe is source code. The video is the build artifact.">
+  <h3 class="k">Demos as <span class="serif">code.</span></h3>
+  <p class="lead">Every demo is a diffable YAML script — captions, narration, clicks, camera. Change a line, re-record. Your product shipped a redesign? The demo rebuilds itself.</p>
+  <div class="split">
+    <div class="code" id="recipecode">
+<span class="row"><span class="y">- action:</span> slide</span>
+<span class="row">  <span class="y">title:</span> <span class="s">"Poached."</span></span>
+<span class="row">  <span class="y">narration:</span> <span class="s">"The transfer market for engineers."</span></span>
+<span class="row"><span class="y">- action:</span> hover</span>
+<span class="row">  <span class="y">selector:</span> <span class="s">h1</span></span>
+<span class="row">  <span class="y">caption:</span> <span class="s">"Talent is a market"</span></span>
+<span class="row"><span class="y">- action:</span> zoom</span>
+<span class="row">  <span class="y">level:</span> 1.45</span>
+<span class="row"><span class="y">- action:</span> click</span>
+<span class="row">  <span class="y">selector:</span> <span class="s">a[href='/wire']</span></span>
+<span class="row">  <span class="y">narration:</span> <span class="s">"The Wire is the rumor mill."</span></span>
+    </div>
+    <div class="stage">
+      <div class="mini" id="mini">
+        <div class="mbar"><i></i><i></i><i></i></div>
+        <div class="h"></div><div class="h2"></div>
+        <div class="l"></div><div class="l" style="width:70%"></div><div class="l" style="width:55%"></div>
+        <div class="btnm"></div>
+        <div class="cur" id="minicur"><svg width="18" height="21" viewBox="0 0 26 30"><path d="M3 1.5 L3 24 L8.7 18.8 L12.6 27.6 L16.4 25.9 L12.5 17.2 L20 16.6 Z" fill="#1b1b1f" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="cap" id="stagecap"></div>
+    </div>
+  </div>
+
+  <div class="mp4box">
+    <div class="mp4icon">▶ demo.mp4</div>
+    <div>
+      <h4 style="font-size:21px; letter-spacing:-.01em">The video carries its own source.</h4>
+      <p style="color:var(--muted); font-size:15.5px; margin-top:6px">The recipe is embedded in the MP4's metadata. Send someone the file — their agent extracts the script and recreates or forks the demo against their own product. View-source, for videos.</p>
+      <code>ffmpeg -i demo.mp4 -f ffmetadata - | grep voila-recipe</code>
+    </div>
+  </div>
+</section>
+
+<section id="demo" class="zoomable" data-cap="A real demo of a real product — scripted, recorded, and narrated by an agent.">
+  <h3 class="k">Seeing is <span class="serif">believing.</span></h3>
+  <p class="lead">This is poached.me, demoed end-to-end by an agent: it read the page, wrote the script, recorded the tour, reviewed its own frames, and fixed its own mistakes. Sound on.</p>
+  <video class="demo" src="demo-poached.mp4" controls playsinline preload="metadata"></video>
+</section>
+
+<section class="zoomable" data-cap="Built for the agents. Yours already knows how to use it.">
+  <h3 class="k">Agent-native, <span class="serif">by design.</span></h3>
+  <p class="lead">voila ships as an MCP server and a skill. Your agent plans with a page outline, records, then reviews its own frames and iterates — a demo tool that gets better at demos.</p>
+  <div class="chips"><span class="chip">voila_outline</span><span class="chip">voila_record</span><span class="chip">voila_review</span><span class="chip">--device mobile</span><span class="chip">optional: true</span></div>
+  <div class="loop"><b>outline</b><span class="arr">→</span><b>script</b><span class="arr">→</span><b>record</b><span class="arr">→</span><b>look at own frames</b><span class="arr">→</span><b>fix</b><span class="arr">→</span><b>ship</b></div>
+</section>
+
+<footer>
+  <div>Built by <a href="https://anzalabidi.dev">Anzal Abidi</a> · <a href="https://github.com/anzal1/voila">github.com/anzal1/voila</a> · open source · MIT</div>
+  <div class="meta"><b>● REC</b> this page's launch video was recorded by voila — of this page, with this page's own recipe.</div>
+</footer>
+
+<script>
+(() => {
+  // timecode
+  let t0 = Date.now();
+  const tc = document.getElementById('tc');
+  setInterval(() => {
+    const s = Math.floor((Date.now() - t0) / 1000);
+    tc.textContent = [3600, 60, 1].map(d => String(Math.floor(s / d) % (d === 3600 ? 99 : 60)).padStart(2, '0')).join(':');
+  }, 500);
+
+  // copy npx
+  const npx = document.getElementById('npx');
+  npx.addEventListener('click', () => {
+    navigator.clipboard?.writeText('npx voila-recorder record https://yourapp.com');
+    npx.style.borderColor = 'var(--copper-hot)';
+    setTimeout(() => npx.style.borderColor = '', 900);
+  });
+
+  // click ripples, everywhere (voila's own click effect)
+  addEventListener('pointerdown', e => {
+    const r = document.createElement('div');
+    r.className = 'ripple';
+    const size = 46;
+    r.style.cssText += `left:${e.clientX - size/2}px;top:${e.clientY - size/2}px;width:${size}px;height:${size}px`;
+    document.body.appendChild(r);
+    r.animate([{transform:'scale(.35)',opacity:.95},{transform:'scale(1.9)',opacity:0}],{duration:650,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish = () => r.remove();
+  });
+
+  // hero word rise
+  const rise = el => { [...el.querySelectorAll('.word')].forEach((w, i) => {
+    w.style.animationDelay = (0.15 + i * 0.1) + 's'; }); el.classList.add('risen'); };
+  rise(document.getElementById('h1line'));
+  setTimeout(() => rise(document.getElementById('h2line')), 500);
+
+  // the voila cursor performs on load: fly to headline, ripple, camera zoom
+  const cur = document.getElementById('vcursor');
+  const hero = document.getElementById('hero');
+  const ease = 'cubic-bezier(.16,1,.3,1)';
+  function flyTo(x, y, ms) {
+    return cur.animate([{}, { transform: `translate(${x}px, ${y}px)` }], { duration: ms, easing: ease, fill: 'forwards' }).finished;
+  }
+  async function performance_() {
+    await new Promise(r => setTimeout(r, 1400));
+    cur.style.opacity = '1';
+    const h1 = document.getElementById('h1line').getBoundingClientRect();
+    await flyTo(h1.left + h1.width * 0.62, h1.top + h1.height * 0.55, 1300);
+    // ripple at cursor
+    const ev = new PointerEvent('pointerdown', { clientX: h1.left + h1.width * 0.62 + 4, clientY: h1.top + h1.height * 0.55 + 4 });
+    dispatchEvent(ev);
+    // camera zoom on the hero, voila-style
+    hero.style.transform = 'scale(1.055)';
+    await new Promise(r => setTimeout(r, 1500));
+    hero.style.transform = 'scale(1)';
+    const cta = document.querySelector('.npx').getBoundingClientRect();
+    await flyTo(cta.left + cta.width * 0.5, cta.top + cta.height * 0.5, 1100);
+    await new Promise(r => setTimeout(r, 1200));
+    cur.style.opacity = '0';
+  }
+  performance_();
+
+  // self-narrating captions per section (muted with ?clean — e.g. while voila
+  // itself records this page, so the two caption systems don't stack)
+  const cap = document.getElementById('caption');
+  const clean = new URLSearchParams(location.search).has('clean');
+  let capTimer;
+  const io = new IntersectionObserver(entries => {
+    if (clean) return;
+    entries.forEach(en => {
+      if (en.isIntersecting && en.target.dataset.cap) {
+        cap.textContent = en.target.dataset.cap;
+        cap.classList.add('on');
+        clearTimeout(capTimer);
+        capTimer = setTimeout(() => cap.classList.remove('on'), 4600);
+      }
+    });
+  }, { threshold: 0.45 });
+  document.querySelectorAll('[data-cap]').forEach(s => io.observe(s));
+
+  // sections get a subtle voila zoom as they enter
+  const zo = new IntersectionObserver(entries => entries.forEach(en => {
+    en.target.style.transform = en.isIntersecting ? 'scale(1)' : 'scale(.985)';
+  }), { threshold: 0.2 });
+  document.querySelectorAll('.zoomable').forEach(s => { s.style.transform = 'scale(.985)'; zo.observe(s); });
+
+  // terminal typing loop
+  const lines = [
+    ['c', '$ npx voila-recorder record https://poached.me --steps demo.yaml'],
+    ['d', '[voila] narrating with Kokoro (af_heart)'],
+    ['d', '[voila] opening page'],
+    ['d', '[voila] recording tour'],
+    ['d', '[voila] rendering 100%'],
+    ['d', '[voila] mixing narration'],
+    ['d', '[voila] embedding recipe'],
+    ['g', '✓ demo.mp4 · 65s · 1920×1200 · recipe inside'],
+  ];
+  const out = document.getElementById('termout');
+  async function typeLoop() {
+    while (true) {
+      out.innerHTML = '';
+      for (const [cls, text] of lines) {
+        const span = document.createElement('span');
+        span.className = cls;
+        out.appendChild(span);
+        if (cls === 'c') {
+          span.classList.add('cursor-block');
+          for (const ch of text) { span.textContent += ch; await new Promise(r => setTimeout(r, 26)); }
+          span.classList.remove('cursor-block');
+          await new Promise(r => setTimeout(r, 350));
+        } else {
+          span.textContent = text;
+          await new Promise(r => setTimeout(r, cls === 'g' ? 200 : 330));
+        }
+        out.appendChild(document.createTextNode('\n'));
+      }
+      const c = document.createElement('span'); c.className = 'cursor-block'; out.appendChild(c);
+      await new Promise(r => setTimeout(r, 5200));
+    }
+  }
+  typeLoop();
+
+  // recipe rows highlight in sync with the mini stage acting them out
+  const rows = [...document.querySelectorAll('#recipecode .row')];
+  const mini = document.getElementById('mini');
+  const minicur = document.getElementById('minicur');
+  const stagecap = document.getElementById('stagecap');
+  const beats = [
+    { rows: [0,1,2], cap: 'slide — title card', cur: [40, 45], zoom: 'scale(1)' },
+    { rows: [3,4,5], cap: 'hover h1 — "Talent is a market"', cur: [46, 28], zoom: 'scale(1)' },
+    { rows: [6,7],   cap: 'zoom 1.45', cur: [46, 28], zoom: 'scale(1.35)' },
+    { rows: [8,9,10],cap: 'click a[href=\'/wire\']', cur: [22, 76], zoom: 'scale(1)' },
+  ];
+  let bi = 0;
+  setInterval(() => {
+    rows.forEach(r => r.classList.remove('hot'));
+    const b = beats[bi % beats.length];
+    b.rows.forEach(i => rows[i] && rows[i].classList.add('hot'));
+    minicur.style.left = b.cur[0] + '%';
+    minicur.style.top = b.cur[1] + '%';
+    mini.style.transform = b.zoom;
+    stagecap.textContent = b.cap;
+    stagecap.classList.add('on');
+    bi++;
+  }, 2600);
+})();
+</script>
+</body>
+</html>

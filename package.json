@@ -1,0 +1,31 @@
+{
+  "name": "voila-recorder",
+  "version": "0.4.0",
+  "description": "Permission-free product demo recorder: URL in, narrated auto-zoomed MP4 out — with the recipe embedded in the video. Agent-native (MCP), fully on-device.",
+  "license": "MIT",
+  "main": "pipeline.js",
+  "bin": {
+    "voila": "./cli.js"
+  },
+  "files": [
+    "cli.js", "server.js", "mcp.js", "pipeline.js", "recorder.js", "tour.js",
+    "overlay.js", "render.js", "audio.js", "review.js", "public/", "README.md", "RECIPE.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test:record": "node test.js"
+  },
+  "keywords": ["demo", "screen-recording", "playwright", "mcp", "agent", "tts", "product-demo", "demos-as-code"],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "express": "^4.19.2",
+    "ffmpeg-static": "^5.2.0",
+    "js-yaml": "^4.1.0",
+    "kokoro-js": "^1.2.1",
+    "playwright": "^1.48.0",
+    "sharp": "^0.33.5"
+  }
+}

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>voila</title>
+<style>
+  :root {
+    --bg: #101014; --card: #17171d; --border: #2a2a33;
+    --text: #f2f0ea; --muted: #9a97a0; --accent: #d97d43; --accent-hover: #e8905a;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: radial-gradient(1200px 600px at 50% -10%, #1d1a24, var(--bg));
+    color: var(--text); min-height: 100vh; display: grid; place-items: center;
+    font: 16px/1.5 -apple-system, "SF Pro Text", Inter, system-ui, sans-serif;
+  }
+  main { width: min(680px, 92vw); }
+  h1 { font-size: 2.1rem; letter-spacing: -0.02em; }
+  h1 span { color: var(--accent); }
+  p.tag { color: var(--muted); margin: 6px 0 28px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+  .row { display: flex; gap: 10px; }
+  input[type=url] {
+    flex: 1; background: #0d0d11; color: var(--text); border: 1px solid var(--border);
+    border-radius: 10px; padding: 13px 16px; font-size: 1rem; outline: none;
+  }
+  input[type=url]:focus { border-color: var(--accent); }
+  button {
+    border: 0; border-radius: 10px; padding: 13px 20px; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: background .15s;
+  }
+  .primary { background: var(--accent); color: #16120d; }
+  .primary:hover { background: var(--accent-hover); }
+  .primary:disabled { opacity: .5; cursor: default; }
+  .ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .ghost:hover { color: var(--text); }
+  .hint { color: var(--muted); font-size: .85rem; margin-top: 14px; }
+  #status { margin-top: 18px; color: var(--muted); font-size: .95rem; min-height: 1.4em; }
+  #status.working::before {
+    content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 9px;
+    border: 2px solid var(--accent); border-top-color: transparent; border-radius: 50%;
+    animation: spin .8s linear infinite; vertical-align: -1px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #result { margin-top: 20px; display: none; }
+  video { width: 100%; border-radius: 12px; border: 1px solid var(--border); }
+  a.dl { color: var(--accent); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>voila<span>.</span></h1>
+  <p class="tag">Paste a URL. Get a crisp, auto-zoomed demo video. No screen-recording permission — ever.</p>
+  <div class="card">
+    <div class="row">
+      <input id="url" type="url" placeholder="https://yourproduct.com" spellcheck="false">
+      <button id="record" class="primary">⏺ Record demo</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="open" class="ghost">Open browser to sign in first</button>
+    </div>
+    <p class="hint">Needs a login? Click “Open browser”, sign in in the window that appears (your credentials stay in a local browser profile on this machine), then hit Record. Next time it’s truly one click.</p>
+    <div id="status"></div>
+    <div id="result">
+      <video id="video" controls autoplay muted loop></video>
+      <p style="margin-top:8px"><a id="dl" class="dl" download>Download MP4</a></p>
+    </div>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const status = (msg, working) => {
+  $('status').textContent = msg;
+  $('status').className = working ? 'working' : '';
+};
+
+$('open').onclick = async () => {
+  const url = $('url').value.trim();
+  if (!url) return status('Enter a URL first.');
+  status('Opening browser…', true);
+  const r = await fetch('/api/open', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
+  const j = await r.json();
+  status(j.message || j.error || 'Browser open.');
+};
+
+$('record').onclick = async () => {
+  const url = $('url').value.trim();
+  if (!url) return status('Enter a URL first.');
+  $('record').disabled = true;
+  $('result').style.display = 'none';
+  status('Starting…', true);
+  const r = await fetch('/api/record', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
+  if (!r.ok) {
+    const j = await r.json().catch(() => ({}));
+    status(j.error || 'Failed to start.');
+    $('record').disabled = false;
+    return;
+  }
+  const poll = setInterval(async () => {
+    const s = await (await fetch('/api/status')).json();
+    if (s.state === 'working') return status(s.detail + '…', true);
+    clearInterval(poll);
+    $('record').disabled = false;
+    if (s.state === 'done') {
+      status('Done — voila.');
+      $('video').src = s.video;
+      $('dl').href = s.video;
+      $('result').style.display = 'block';
+    } else {
+      status('Error: ' + s.detail);
+    }
+  }, 900);
+};
+</script>
+</body>
+</html>
