@@ -45,8 +45,7 @@ npx -y voila-recorder review demo.mp4
   duplicate elements.
 - Selector failures name the failing step and include the live page outline —
   patch, don't retry blindly.
-- `--device mobile` records a real iPhone-class viewport (portrait; zoom is
-  disabled on purpose — mobile layouts crop badly).
+- `--device mobile` and `--device tablet` record real portrait viewports. Zoom is disabled on both because narrow layouts crop badly.
 - Login-protected apps: ask the human to sign in once
   (`npx -y voila-recorder record <url> --headful` or the web UI via
   `npx -y voila-recorder serve`). The session persists in a local browser

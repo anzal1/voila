@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>voila — demos that record themselves</title>
+<title>voila: demos that record themselves</title>
 <meta name="description" content="Paste a URL, get a narrated, zoom-animated product demo video. No screen-recording permission, ever. Fully on-device. Agent-native. The recipe travels inside the video.">
-<meta property="og:title" content="voila — demos that record themselves">
+<meta property="og:title" content="voila: demos that record themselves">
 <meta property="og:description" content="URL in, narrated demo video out. No permissions. On-device. The video carries its own source code.">
 <meta property="og:url" content="https://voila.anzalabidi.dev/">
 <meta property="og:type" content="website">
@@ -278,16 +278,16 @@
     <em>No screen-recording permission. No cloud. No API keys.</em> Everything happens on your machine.</p>
   <div class="cta">
     <div class="agentbox">
-      <div class="al">PASTE THIS TO YOUR AGENT — IT DOES THE REST</div>
+      <div class="al">PASTE THIS TO YOUR AGENT. IT DOES THE REST</div>
       <div class="promptcard" id="promptcard" title="click to copy"
         data-copy="Record a narrated demo video of <MY PRODUCT URL> using voila. Setup: run `npx -y voila-recorder skill` to install the skill, and read https://voila.anzalabidi.dev/llms.txt for how it works. Then: get the page outline, write a steps YAML where every beat has a caption and spoken narration and the demo opens and closes with a title slide, record it, review your own frames, fix what's off, and give me the MP4.">
         <p>“Record a narrated demo video of <b>&lt;my product url&gt;</b> using
-        <b>voila</b> — install it with <b>npx voila-recorder skill</b>, read
+        <b>voila</b>. Install it with <b>npx voila-recorder skill</b>, read
         <b>voila.anzalabidi.dev/llms.txt</b>, script the tour, record, review
         your own frames, and give me the MP4.”</p>
         <span class="copyhint">⧉ click to copy the full prompt</span>
       </div>
-      <p class="ah">Works in Claude Code, Cursor, Codex — any agent, any harness. You never open a terminal.</p>
+      <p class="ah">Works in Claude Code, Cursor, Codex, any agent, any harness. You never open a terminal.</p>
       <div class="ctarow">
         <a class="btn" href="#demo">Watch it demo a real product ↓</a>
         <a class="ghost" href="#agents">Prefer MCP or manual install? ↓</a>
@@ -303,13 +303,13 @@
 
 <section class="zoomable" data-cap="No screen capture. The page is rendered in a browser voila owns.">
   <h3 class="k">Your screen is never <span class="serif">touched.</span></h3>
-  <p class="lead">Screen recorders capture your display — so they need permissions, and they see everything.
+  <p class="lead">Screen recorders capture your display, so they need permissions, and they see everything.
   voila never looks at your screen. It renders your site inside its own headless Chromium and pulls frames
   straight from the rendering engine. Sharper than any screen recording, and there is nothing to grant.</p>
   <div class="steps">
-    <div class="step"><div class="n">01 · RENDER</div><h4>Own browser</h4><p>2× retina frames via the DevTools protocol. Log in once in a local profile — credentials never pass through voila.</p></div>
+    <div class="step"><div class="n">01 · RENDER</div><h4>Own browser</h4><p>2× retina frames via the DevTools protocol. Log in once in a local profile. Credentials never pass through voila.</p></div>
     <div class="step"><div class="n">02 · DIRECT</div><h4>Agent as director</h4><p>An agent reads your page, writes the script: cursor moves, clicks with ripples, camera zooms, animated title slides.</p></div>
-    <div class="step"><div class="n">03 · SPEAK</div><h4>On-device voice</h4><p>Kokoro-82M — open source, 80MB, runs on CPU — narrates every beat. Captions sync to the voice, automatically.</p></div>
+    <div class="step"><div class="n">03 · SPEAK</div><h4>On-device voice</h4><p>Kokoro-82M, open source, 80MB, runs on CPU. It narrates every beat. Captions sync to the voice, automatically.</p></div>
   </div>
 </section>
 
@@ -323,7 +323,7 @@
 
 <section class="zoomable" data-cap="The recipe is source code. The video is the build artifact.">
   <h3 class="k">Demos as <span class="serif">code.</span></h3>
-  <p class="lead">Every demo is a diffable YAML script — captions, narration, clicks, camera. Change a line, re-record. Your product shipped a redesign? The demo rebuilds itself.</p>
+  <p class="lead">Every demo is a diffable YAML script: captions, narration, clicks, camera. Change a line, re-record. Your product shipped a redesign? The demo rebuilds itself.</p>
   <div class="split">
     <div class="code" id="recipecode">
 <span class="row"><span class="y">- action:</span> slide</span>
@@ -354,13 +354,13 @@
     <div class="mp4icon">▶ demo.mp4</div>
     <div>
       <h4 style="font-size:21px; letter-spacing:-.01em">The video carries its own source.</h4>
-      <p style="color:var(--muted); font-size:15.5px; margin-top:6px">The recipe is embedded in the MP4's metadata. Send someone the file — their agent extracts the script and recreates or forks the demo against their own product. View-source, for videos.</p>
+      <p style="color:var(--muted); font-size:15.5px; margin-top:6px">The recipe is embedded in the MP4's metadata. Send someone the file and their agent extracts the script, then recreates or forks the demo against their own product. View-source, for videos.</p>
       <code>ffmpeg -i demo.mp4 -f ffmetadata - | grep voila-recipe</code>
     </div>
   </div>
 </section>
 
-<section id="demo" class="zoomable" data-cap="A real demo of a real product — scripted, recorded, and narrated by an agent.">
+<section id="demo" class="zoomable" data-cap="A real demo of a real product, scripted, recorded, and narrated by an agent.">
   <h3 class="k">Seeing is <span class="serif">believing.</span></h3>
   <p class="lead">This is poached.me, demoed end-to-end by an agent: it read the page, wrote the script, recorded the tour, reviewed its own frames, and fixed its own mistakes. Sound on.</p>
   <video class="demo" src="demo-poached.mp4" controls playsinline preload="metadata"></video>
@@ -368,7 +368,7 @@
 
 <section id="agents" class="zoomable" data-cap="Built for the agents. Yours already knows how to use it.">
   <h3 class="k">Agent-native, <span class="serif">by design.</span></h3>
-  <p class="lead">voila ships as an MCP server and a skill. Your agent plans with a page outline, records, then reviews its own frames and iterates — a demo tool that gets better at demos.</p>
+  <p class="lead">voila ships as an MCP server and a skill. Your agent plans with a page outline, records, then reviews its own frames and iterates. A demo tool that gets better at demos.</p>
   <div class="chips"><span class="chip">voila_outline</span><span class="chip">voila_record</span><span class="chip">voila_review</span><span class="chip">--device mobile</span><span class="chip">optional: true</span></div>
   <div class="loop"><b>outline</b><span class="arr">→</span><b>script</b><span class="arr">→</span><b>record</b><span class="arr">→</span><b>look at own frames</b><span class="arr">→</span><b>fix</b><span class="arr">→</span><b>ship</b></div>
 
@@ -405,7 +405,7 @@ args = ["-y", "voila-recorder", "mcp"]</pre>
 
 <footer>
   <div>Built by <a href="https://anzalabidi.dev">Anzal Abidi</a> · <a href="https://github.com/anzal1/voila">github.com/anzal1/voila</a> · open source · MIT</div>
-  <div class="meta"><b>● REC</b> this page's launch video was recorded by voila — of this page, with this page's own recipe.</div>
+  <div class="meta"><b>● REC</b> this page's launch video was recorded by voila, of this page, with this page's own recipe.</div>
 </footer>
 
 <script>
@@ -430,7 +430,7 @@ args = ["-y", "voila-recorder", "mcp"]</pre>
   pc.addEventListener('click', () => {
     navigator.clipboard?.writeText(pc.dataset.copy);
     const hint = pc.querySelector('.copyhint');
-    hint.textContent = '✓ copied — paste it to your agent';
+    hint.textContent = '✓ copied, paste it to your agent';
     hint.style.color = 'var(--copper-hot)';
     setTimeout(() => {
       hint.textContent = '⧉ click to copy the full prompt';
@@ -557,8 +557,8 @@ args = ["-y", "voila-recorder", "mcp"]</pre>
   const minicur = document.getElementById('minicur');
   const stagecap = document.getElementById('stagecap');
   const beats = [
-    { rows: [0,1,2], cap: 'slide — title card', cur: [40, 45], zoom: 'scale(1)' },
-    { rows: [3,4,5], cap: 'hover h1 — "Talent is a market"', cur: [46, 28], zoom: 'scale(1)' },
+    { rows: [0,1,2], cap: 'slide, title card', cur: [40, 45], zoom: 'scale(1)' },
+    { rows: [3,4,5], cap: 'hover h1, "Talent is a market"', cur: [46, 28], zoom: 'scale(1)' },
     { rows: [6,7],   cap: 'zoom 1.45', cur: [46, 28], zoom: 'scale(1.35)' },
     { rows: [8,9,10],cap: 'click a[href=\'/wire\']', cur: [22, 76], zoom: 'scale(1)' },
   ];

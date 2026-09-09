@@ -23,7 +23,7 @@ const DEVICES = {
     userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',
   },
   tablet: {
-    viewport: { width: 834, height: 1112 }, dpr: 2, isMobile: true, hasTouch: true, maxZoom: 1.25,
+    viewport: { width: 834, height: 1112 }, dpr: 2, isMobile: true, hasTouch: true, maxZoom: 1,
     userAgent: 'Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',
   },
 };

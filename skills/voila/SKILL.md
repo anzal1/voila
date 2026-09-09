@@ -48,9 +48,9 @@ Reference: https://voila.anzalabidi.dev/llms.txt · https://github.com/anzal1/vo
   (desktop + mobile nav).
 - On selector failure the error includes the live page outline — use it to
   patch, don't retry blindly.
-- Devices: desktop (1280×800), mobile (390×844, iPhone emulation, zoom
-  auto-disabled — mobile layouts crop badly), tablet (834×1112). Portrait
-  output on mobile.
+- Devices: desktop (1280x800), mobile (390x844, iPhone emulation), tablet
+  (834x1112). Zoom is auto-disabled on mobile and tablet because narrow
+  layouts crop badly; both output portrait.
 - Zoom levels 1.3–1.6 on desktop; always return to 1 before ending.
 - Login-protected apps: ask the user to run the record once with `--headful`,
   or open the web UI (`npx -y voila-recorder serve`, port 4477) and sign in —

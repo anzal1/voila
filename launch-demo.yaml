@@ -1,0 +1,77 @@
+# The LinkedIn launch video: voila records its own landing page, v3.
+# Arc: hook → what it is → zero permissions → how → demos-as-code → proof → loop → reveal.
+
+- action: slide
+  title: "voila."
+  subtitle: "Demos that record themselves"
+  accent: "#c87840"
+  narration: "What if a demo could record itself?"
+  ms: 3400
+
+- action: hover
+  selector: h1
+  caption: "One prompt in. A finished demo out."
+  narration: "This is voila. Paste one prompt to your agent, and it returns a narrated, zoom-animated demo of your product."
+- action: zoom
+  level: 1.35
+- action: wait
+  ms: 1400
+- action: zoom
+  level: 1.05
+
+- action: hover
+  selector: ".promptcard"
+  caption: "No permissions. No cloud. No API keys."
+  narration: "No screen recording permission. No cloud. No API keys. Everything happens on your machine."
+- action: zoom
+  level: 1.45
+- action: click
+  selector: ".promptcard"
+  optional: true
+- action: wait
+  ms: 1400
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: ".steps"
+  caption: "Render. Direct. Speak."
+  narration: "It renders your site in its own browser, directs the camera like an editor, and narrates with an open source voice that runs on your CPU."
+- action: zoom
+  level: 1.3
+- action: wait
+  ms: 1000
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: "#recipecode"
+  caption: "Demos as code"
+  narration: "Every demo is a YAML recipe. And the recipe travels inside the video file itself — view source, for videos."
+- action: zoom
+  level: 1.25
+- action: wait
+  ms: 1100
+- action: zoom
+  level: 1
+
+- action: scroll_to
+  selector: "#demo"
+  caption: "Made by an agent, start to finish"
+  narration: "Here's one it recorded for a real product — scripted, narrated, and self-reviewed by an agent."
+- action: wait
+  ms: 1600
+
+- action: scroll_to
+  selector: ".loop"
+  caption: "It reviews its own frames"
+  narration: "voila is built for agents. It records, looks at its own frames, and fixes its own mistakes."
+- action: wait
+  ms: 1200
+
+- action: slide
+  title: "Recorded by itself."
+  subtitle: "voila.anzalabidi.dev · npx voila-recorder skill"
+  accent: "#c87840"
+  narration: "And this video? voila recorded it — of its own landing page. voila."
+  ms: 4800

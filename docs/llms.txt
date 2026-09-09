@@ -50,7 +50,7 @@ A list of {action, ...params, caption?, narration?, optional?}:
 - On selector failure, the error names the step and includes the live page
   outline: patch the selector and retry. Prefer a[href='/path'] and ids over
   text selectors. Append " >> visible=true" when desktop+mobile nav duplicate.
-- device mobile: iPhone emulation, portrait output, zoom disabled by design.
+- device mobile and tablet: real portrait viewports, zoom disabled by design (narrow layouts crop badly).
 - Login walls: ask the human to sign in once (record --headful, or the web UI
   via `npx -y voila-recorder serve`); the session persists in a local profile.
   Never type credentials yourself.
