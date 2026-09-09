@@ -14,9 +14,12 @@ Prefer the MCP tools if registered (`voila_outline`, `voila_record`,
 `voila_review`); otherwise use the CLI via npx:
 
 ```bash
+npx -y voila-recorder doctor            # first run: pre-downloads chromium + voice model
 npx -y voila-recorder outline <url>
 npx -y voila-recorder record <url> --steps steps.yaml [--device mobile]
 npx -y voila-recorder review demo.mp4
+npx -y voila-recorder fork demo.mp4 --url https://other.example
+npx -y voila-recorder rerender <dir> --voice bf_emma
 ```
 
 Register the MCP server once with: `claude mcp add voila -- npx -y voila-recorder mcp`
@@ -65,5 +68,12 @@ Reference: https://voila.anzalabidi.dev/llms.txt · https://github.com/anzal1/vo
   (A) default, af_bella (A-), af_nicole (B-), bf_emma (B-, British). `--speed`
   or the speed param (0.5-1.6) changes pace; 0.9 reads calmer.
 - A failing step is retried once automatically; warnings appear in the result.
+- Iterating on narration? Record once with `--keep-frames`, then `rerender <dir>
+  --voice x --speed n`. It skips the browser entirely and finishes in seconds.
+- Consent banners are auto-dismissed (reject preferred over accept). Use
+  `--dismiss <selector>` for an unusual one, `--no-dismiss` to leave it alone.
+- First run on a new machine downloads ~240MB. Run `voila doctor` first and tell
+  the user it is downloading, so it does not look frozen.
+- `fork <video.mp4>` rebuilds any voila demo from the recipe inside the file.
 - Narration style: short sentences, product language, no "as you can see".
   8–15 words per beat reads best at Kokoro's pace.

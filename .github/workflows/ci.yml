@@ -25,6 +25,13 @@ jobs:
         run: node cli.js record https://example.com --no-narrate --out ci-out
       - name: verify the mp4 exists and carries its recipe
         run: node cli.js review ci-out/demo.mp4 --frames 3
+      - name: doctor, voices, fork, rerender
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          node cli.js --version
+          node cli.js doctor --check || true
+          node cli.js voices | head -5
+          node cli.js fork ci-out/demo.mp4 --print | head -5
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -33,8 +40,12 @@ jobs:
           if-no-files-found: warn
 
   narrate:
-    name: narrated record (linux x64)
-    runs-on: ubuntu-latest
+    name: narrated record on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -45,8 +56,8 @@ jobs:
       - name: record with on-device TTS
         run: node cli.js record https://example.com --steps ci-narrate.yaml --out ci-out
       - name: verify audio track is present
+        shell: node {0}
         run: |
-          node -e "
           const {execFileSync}=require('child_process');
           const ff=require('ffmpeg-static');
           let out='';
@@ -54,4 +65,3 @@ jobs:
           catch(e){ out=String(e.stderr); }
           if(!/Audio: aac/.test(out)) { console.error(out); throw new Error('no narration track'); }
           console.log('narration track OK');
-          "

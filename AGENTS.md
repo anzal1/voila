@@ -24,6 +24,9 @@ npx -y voila-recorder record <url> --steps steps.yaml [--device mobile]
 npx -y voila-recorder review demo.mp4
 npx -y voila-recorder voices
 npx -y voila-recorder login <url>
+npx -y voila-recorder doctor
+npx -y voila-recorder fork demo.mp4 [--url other] [--print]
+npx -y voila-recorder rerender <dir> --voice bf_emma
 ```
 
 ## The loop — always follow it

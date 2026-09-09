@@ -44,7 +44,7 @@ function embedRecipe(videoIn, videoOut, recipe) {
   });
 }
 
-async function produceDemo(session, { url, mode = 'auto', steps = null, workDir, voice = null, speed = 1, narrate = true, onStatus = () => {} }) {
+async function produceDemo(session, { url, mode = 'auto', steps = null, workDir, voice = null, speed = 1, narrate = true, keepFrames = false, onStatus = () => {} }) {
   // Steps mode: synthesize narration BEFORE recording so segment pacing and
   // caption lifetimes match the spoken clip durations exactly.
   let prepared = null;
@@ -77,10 +77,40 @@ async function produceDemo(session, { url, mode = 'auto', steps = null, workDir,
   onStatus('embedding recipe');
   await embedRecipe(narrated, out, recipe);
 
-  fs.rmSync(meta.framesDir, { recursive: true, force: true });
+  // Frames are the expensive part to recreate: keeping them lets `voila
+  // rerender` change the voice, speed or captions in seconds instead of
+  // re-driving the browser. They are large, so it is opt-in.
+  if (!keepFrames) fs.rmSync(meta.framesDir, { recursive: true, force: true });
   fs.rmSync(raw, { force: true });
   fs.rmSync(narrated, { force: true });
-  return { video: out, recipe: path.join(workDir, 'recipe.json'), meta, narration };
+  return { video: out, recipe: path.join(workDir, 'recipe.json'), meta, narration, framesKept: keepFrames };
+}
+
+// Re-produce the video from frames already on disk: no browser, no re-driving
+// the page. Used to swap the narration voice or speed after the fact.
+async function rerender(workDir, { voice = null, speed = 1, narrate = true, onStatus = () => {} } = {}) {
+  const metaPath = path.join(workDir, 'meta.json');
+  if (!fs.existsSync(metaPath)) throw new Error(`no meta.json in ${workDir}`);
+  const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+  if (!fs.existsSync(meta.framesDir) || !fs.readdirSync(meta.framesDir).length) {
+    throw new Error(`frames were not kept for this recording. Re-record with --keep-frames to enable rerender.`);
+  }
+
+  const raw = path.join(workDir, 'raw.mp4');
+  const narrated = path.join(workDir, 'narrated.mp4');
+  const out = path.join(workDir, 'demo.mp4');
+  await render(meta, raw, { onStatus });
+
+  let narration = { narrated: false };
+  if (narrate) narration = await addNarration(meta, raw, narrated, { voice, speed, onStatus });
+  else fs.copyFileSync(raw, narrated);
+
+  const recipe = JSON.parse(fs.readFileSync(path.join(workDir, 'recipe.json'), 'utf8'));
+  onStatus('embedding recipe');
+  await embedRecipe(narrated, out, recipe);
+  fs.rmSync(raw, { force: true });
+  fs.rmSync(narrated, { force: true });
+  return { video: out, meta, narration };
 }
 
 async function outline(session, url) {
@@ -88,4 +118,4 @@ async function outline(session, url) {
   return extractOutline(page);
 }
 
-module.exports = { produceDemo, outline };
+module.exports = { produceDemo, rerender, outline };

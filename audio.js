@@ -22,6 +22,7 @@ async function getKokoro() {
     // Must load the CJS build (exports map: require → dist/kokoro.cjs): it
     // resolves bundled voice files via __dirname, while the ESM build loses
     // __dirname and breaks when cwd isn't the package root.
+    require('./modelcache').useStableCache();
     const { KokoroTTS } = require('kokoro-js');
     kokoroInstance = await KokoroTTS.from_pretrained(
       'onnx-community/Kokoro-82M-v1.0-ONNX', { dtype: 'q8' }

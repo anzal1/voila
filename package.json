@@ -1,7 +1,7 @@
 {
   "name": "voila-recorder",
-  "version": "0.5.0",
-  "description": "Permission-free product demo recorder: URL in, narrated auto-zoomed MP4 out — with the recipe embedded in the video. Agent-native (MCP), fully on-device.",
+  "version": "0.6.0",
+  "description": "Permission-free product demo recorder: URL in, narrated auto-zoomed MP4 out \u2014 with the recipe embedded in the video. Agent-native (MCP), fully on-device.",
   "license": "MIT",
   "main": "pipeline.js",
   "bin": {
@@ -18,6 +18,9 @@
     "render.js",
     "audio.js",
     "review.js",
+    "modelcache.js",
+    "consent.js",
+    "doctor.js",
     "voices.js",
     "auth.js",
     "public/",

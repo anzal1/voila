@@ -20,9 +20,12 @@ Codex CLI (~/.codex/config.toml):
   args = ["-y", "voila-recorder", "mcp"]
 
 No MCP? Use the CLI directly:
+  npx -y voila-recorder doctor                 # check + pre-download everything (run this first)
   npx -y voila-recorder outline <url>
   npx -y voila-recorder login <url>            # human signs in; session saved locally
   npx -y voila-recorder voices                 # every narration voice, best first
+  npx -y voila-recorder fork <video.mp4> [--url other] [--print]
+  npx -y voila-recorder rerender <dir> --voice x   # needs --keep-frames on the record
   npx -y voila-recorder record <url> [--steps steps.yaml] [--device mobile|tablet]
   npx -y voila-recorder review <video.mp4> [--frames 12]
 
@@ -64,6 +67,16 @@ A list of {action, ...params, caption?, narration?, optional?}:
   Chromium profile that every later recording reuses. Never type credentials
   yourself, and never ask the user for them in chat.
 - A failing step is retried once automatically before it is reported.
+- First run downloads Chromium (~150MB) and the voice model (~90MB) into
+  ~/.cache/voila. Run `doctor` first so the user sees progress instead of a
+  seemingly hung command.
+- Cookie/consent banners are dismissed automatically before recording, choosing
+  "reject"/"necessary only" over "accept" where both exist. --no-dismiss turns
+  it off; --dismiss <selector> handles an unusual banner.
+- Record with --keep-frames, then `rerender <dir> --voice x --speed n` to change
+  the narration without re-driving the browser (seconds instead of minutes).
+- `fork <video.mp4>` pulls the recipe out of any voila MP4 and records it again;
+  --url points it at a different site, --print just emits the steps YAML.
 
 ## The loop (always)
 

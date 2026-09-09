@@ -59,7 +59,9 @@ class Timeline {
 }
 
 class VoilaSession {
-  constructor({ profileDir, headless = false, device = 'desktop' } = {}) {
+  constructor({ profileDir, headless = false, device = 'desktop', dismiss = true, dismissSelector = null } = {}) {
+    this.dismiss = dismiss;
+    this.dismissSelector = dismissSelector;
     this.profileDir = profileDir || path.join(__dirname, 'profile');
     this.headless = headless;
     this.device = DEVICES[device] ? device : 'desktop';
@@ -85,11 +87,9 @@ class VoilaSession {
         // Zero-install path: fetch Chromium on first use instead of making the
         // user run `npx playwright install` themselves.
         if (!/Executable doesn't exist|missing dependencies|browser.*not found/i.test(String(e.message))) throw e;
-        const { execFileSync } = require('child_process');
-        let cliPath;
-        try { cliPath = require.resolve('playwright/cli'); }
-        catch { cliPath = path.join(path.dirname(require.resolve('playwright/package.json')), 'cli.js'); }
-        execFileSync(process.execPath, [cliPath, 'install', 'chromium'], { stdio: 'pipe', timeout: 600000 });
+        // Visible progress: a silent 150MB download reads as a hang.
+        process.stderr.write('[voila] first run: downloading Chromium (~150MB, one time)\n');
+        require('./doctor').installChromium();
         this.context = await launch();
       }
       await this.context.addInitScript(OVERLAY_SOURCE);
@@ -99,6 +99,10 @@ class VoilaSession {
     this.page.on('close', () => { this.page = null; });
     await this.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
     await this.page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+    if (this.dismiss) {
+      const { dismissConsent } = require('./consent');
+      this.dismissed = await dismissConsent(this.page, { selector: this.dismissSelector });
+    }
     return this.page;
   }
 
@@ -173,6 +177,7 @@ class VoilaSession {
       frames: frames.sort((a, b) => a.t - b.t),
       moves: tl.moves, zooms: tl.zooms, segments: tl.segments,
       warnings: tl.warnings || [],
+      dismissed: this.dismissed || [],
       framesDir,
     };
     fs.writeFileSync(path.join(workDir, 'meta.json'), JSON.stringify(meta));

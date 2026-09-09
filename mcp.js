@@ -37,7 +37,7 @@ function getSession(device) {
   return sessions.get(key);
 }
 
-const server = new McpServer({ name: 'voila', version: '0.5.0' });
+const server = new McpServer({ name: 'voila', version: '0.6.0' });
 const deviceParam = z.enum(['desktop', 'mobile', 'tablet']).optional().default('desktop');
 
 server.tool(

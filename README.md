@@ -28,8 +28,17 @@ voila record <url> --device mobile            # iPhone-class viewport (portrait)
 voila outline <url>                           # page structure for planning
 voila review demo.mp4 --frames 12             # frames + recipe for self-review
 voila serve                                   # web UI
+voila doctor                                  # check + pre-download chromium and the voice model
+voila fork demo.mp4 --url https://other.app   # rebuild any voila demo from the recipe inside it
+voila rerender <dir> --voice bf_emma          # new voice, no re-recording (needs --keep-frames)
+voila login https://app.example.com           # you sign in; session saved locally
+voila voices                                  # 28 narration voices, graded
 voila mcp                                     # stdio MCP server
 ```
+
+First run downloads Chromium (~150MB) and the voice model (~90MB) into
+`~/.cache/voila`, so upgrades do not re-download. Consent banners are dismissed
+before recording, preferring "reject" over "accept".
 
 Devices: `desktop` (1280×800), `mobile` (390×844, touch + mobile UA),
 `tablet` (834×1112). Cross-platform: verified on macOS and Linux (arm64
