@@ -27,7 +27,8 @@
     "skills/",
     "AGENTS.md",
     "README.md",
-    "RECIPE.md"
+    "RECIPE.md",
+    "scripts/"
   ],
   "repository": {
     "type": "git",

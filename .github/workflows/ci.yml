@@ -20,7 +20,16 @@ jobs:
         with:
           node-version: 20
       - run: npm install --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
+      - name: install chromium (retry; hosted apt mirrors are flaky)
+        shell: bash
+        run: |
+          for i in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            echo "attempt $i failed, retrying"
+            if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update || true; fi
+            sleep 20
+          done
+          exit 1
       - name: record a demo (no narration)
         run: node cli.js record https://example.com --no-narrate --out ci-out
       - name: verify the mp4 exists and carries its recipe
@@ -52,16 +61,17 @@ jobs:
         with:
           node-version: 20
       - run: npm install --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
+      - name: install chromium (retry; hosted apt mirrors are flaky)
+        shell: bash
+        run: |
+          for i in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            echo "attempt $i failed, retrying"
+            if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update || true; fi
+            sleep 20
+          done
+          exit 1
       - name: record with on-device TTS
         run: node cli.js record https://example.com --steps ci-narrate.yaml --out ci-out
       - name: verify audio track is present
-        shell: node {0}
-        run: |
-          const {execFileSync}=require('child_process');
-          const ff=require('ffmpeg-static');
-          let out='';
-          try { execFileSync(ff,['-i','ci-out/demo.mp4'],{stdio:'pipe'}); }
-          catch(e){ out=String(e.stderr); }
-          if(!/Audio: aac/.test(out)) { console.error(out); throw new Error('no narration track'); }
-          console.log('narration track OK');
+        run: node scripts/check-audio.js ci-out/demo.mp4
