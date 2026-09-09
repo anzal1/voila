@@ -1,0 +1,38 @@
+name: Bug report
+description: Something recorded wrong, crashed, or looked broken
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What did you run, and what did you get?
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes:
+      label: voila version
+      description: "Output of: npx voila-recorder --version"
+    validations: { required: true }
+  - type: input
+    id: env
+    attributes:
+      label: OS and Node version
+      placeholder: "macOS 15 arm64, Node 20.11"
+    validations: { required: true }
+  - type: textarea
+    id: doctor
+    attributes:
+      label: voila doctor output
+      description: "Run: npx voila-recorder doctor --check"
+      render: shell
+  - type: textarea
+    id: steps
+    attributes:
+      label: Your steps YAML, if you used one
+      render: yaml

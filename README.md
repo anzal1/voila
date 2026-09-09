@@ -3,8 +3,49 @@
 [![ci](https://github.com/anzal1/voila/actions/workflows/ci.yml/badge.svg)](https://github.com/anzal1/voila/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/voila-recorder)](https://www.npmjs.com/package/voila-recorder)
 
+**Demos that record themselves.** Paste a URL, get a narrated, zoom-animated
+MP4. No screen-recording permission, no cloud, no API keys. Everything runs on
+your machine, and the script to rebuild the video is embedded inside the video.
+
+<https://voila.anzalabidi.dev>
+
+## See it
+
+This video was recorded by voila, of its own landing page, using its own recipe.
+
+<video src="https://voila.anzalabidi.dev/demo-launch.mp4" poster="https://voila.anzalabidi.dev/poster-launch.jpg" controls muted playsinline width="100%"></video>
+
+[![Watch the launch demo](https://voila.anzalabidi.dev/poster-launch.jpg)](https://voila.anzalabidi.dev/demo-launch.mp4)
+
+*(If the player above does not load, the image is a link to the MP4.)*
+
+### Six languages, in one recording
+
+English, then Spanish, then French, then Hindi, all from one 80MB on-device
+model. Sound on.
+
+<video src="https://voila.anzalabidi.dev/demo-languages.mp4" poster="https://voila.anzalabidi.dev/poster-languages.jpg" controls muted playsinline width="100%"></video>
+
+[![Watch the multilingual demo](https://voila.anzalabidi.dev/poster-languages.jpg)](https://voila.anzalabidi.dev/demo-languages.mp4)
+
+## Quick start
+
+Tell your agent:
+
+> Record a narrated demo video of `<my product url>` using voila. Install it
+> with `npx -y voila-recorder skill`, read
+> <https://voila.anzalabidi.dev/llms.txt>, then outline the page, script the
+> tour, record it, review your own frames, fix what is off, and give me the MP4.
+
+Or drive it yourself:
+
+```bash
+npx -y voila-recorder doctor                      # pre-download chromium + voice model
+npx -y voila-recorder record https://yourapp.com  # auto tour -> narrated MP4
+```
+
 Verified on Linux, macOS, and Windows in CI: every push records a real demo on
-all three and checks the on-device narration track.
+all three, in two languages, and checks the on-device narration track.
 
 One-click, permission-free product demo recorder. Paste a URL → get a crisp,
 auto-zoomed, cursor-animated MP4. No OS screen-recording permission, ever —
@@ -171,3 +212,16 @@ most salient element so it never sits parked.
 
 - `PORT` — server port (default 4477)
 - `VOILA_HEADLESS=1` — record headlessly (CI mode; no window pops)
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for how to run the project locally and what CI checks on every push.
+Release history is in [CHANGELOG.md](CHANGELOG.md).
+
+## License
+
+MIT, see [LICENSE](LICENSE). voila bundles ffmpeg (via ffmpeg-static) and uses
+[Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) (Apache-2.0) for
+narration and [espeak-ng](https://github.com/espeak-ng/espeak-ng) (GPL-3.0,
+loaded as a separate WASM module) for non-English pronunciation.

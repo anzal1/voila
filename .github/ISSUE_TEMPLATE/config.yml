@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Docs for agents
+    url: https://voila.anzalabidi.dev/llms.txt
+    about: How to drive voila from Claude Code, Cursor, Codex or any agent
