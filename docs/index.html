@@ -111,7 +111,9 @@
   .promptcard b { color: var(--copper-hot); font-weight: 600; font-family: "JetBrains Mono", monospace; font-size: .92em; }
   .promptcard .copyhint { display: block; margin-top: 10px; font-family: "JetBrains Mono", monospace;
     font-size: 12px; color: var(--muted); }
-  .cta .btn { margin-top: 27px; }
+  .ctarow { display: flex; gap: 20px; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+  .ctarow .ghost { color: var(--muted); font-size: 14px; border-bottom: 1px dotted var(--line); padding-bottom: 1px; }
+  .ctarow .ghost:hover { color: var(--copper-hot); }
   .npx {
     font-family: "JetBrains Mono", monospace; font-size: 15.5px;
     background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
@@ -255,9 +257,12 @@
         your own frames, and give me the MP4.”</p>
         <span class="copyhint">⧉ click to copy the full prompt</span>
       </div>
-      <p class="ah">Works in Claude Code, Cursor, Codex — any agent, any harness. You never open a terminal. <a href="#agents">Prefer MCP or manual install? ↓</a></p>
+      <p class="ah">Works in Claude Code, Cursor, Codex — any agent, any harness. You never open a terminal.</p>
+      <div class="ctarow">
+        <a class="btn" href="#demo">Watch it demo a real product ↓</a>
+        <a class="ghost" href="#agents">Prefer MCP or manual install? ↓</a>
+      </div>
     </div>
-    <a class="btn" href="#demo">Watch it demo a real product ↓</a>
   </div>
 </section>
 
