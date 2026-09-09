@@ -79,6 +79,10 @@ jobs:
         run: node cli.js record https://example.com --steps ci-narrate.yaml --out ci-out
       - name: verify audio track is present
         run: node scripts/check-audio.js ci-out/demo.mp4
+      - name: record a mixed-language demo (English + Spanish, Kokoro only)
+        run: node cli.js record https://example.com --steps ci-multilang.yaml --out ci-multi
+      - name: verify the multilingual narration landed
+        run: node scripts/check-audio.js ci-multi/demo.mp4
       - name: record with an external TTS engine (--tts-cmd)
         run: node cli.js record https://example.com --steps ci-ttscmd.yaml --tts-cmd "node scripts/tts-cmd-fixture.js {out} {text}" --out ci-cmd
       - name: verify the external-engine narration landed

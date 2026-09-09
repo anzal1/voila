@@ -1,0 +1,13 @@
+- action: hover
+  selector: h1
+  caption: "English"
+  narration: "This clip is English."
+- action: wait
+  ms: 300
+- action: hover
+  selector: h1
+  caption: "Espanol"
+  voice: ef_dora
+  narration: "Esta parte esta en espanol."
+- action: wait
+  ms: 300
