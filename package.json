@@ -9,8 +9,15 @@
   },
   "files": [
     "cli.js", "server.js", "mcp.js", "pipeline.js", "recorder.js", "tour.js",
-    "overlay.js", "render.js", "audio.js", "review.js", "public/", "README.md", "RECIPE.md"
+    "overlay.js", "render.js", "audio.js", "review.js", "public/", "skills/",
+    "AGENTS.md", "README.md", "RECIPE.md"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anzal1/voila.git"
+  },
+  "homepage": "https://voila.anzalabidi.dev",
+  "author": "Anzal Abidi (https://anzalabidi.dev)",
   "engines": {
     "node": ">=20"
   },

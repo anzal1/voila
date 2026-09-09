@@ -54,6 +54,18 @@
   #rec .dot { width: 9px; height: 9px; border-radius: 50%; background: #e5484d; animation: blink 1.2s steps(2) infinite; }
   @keyframes blink { 50% { opacity: .25; } }
 
+  #topnav { position: fixed; top: 18px; right: 20px; z-index: 90; display: flex; gap: 10px; }
+  .chipnav {
+    font-family: "JetBrains Mono", monospace; font-size: 13px; letter-spacing: .04em;
+    background: rgba(16,15,13,.72); backdrop-filter: blur(8px);
+    border: 1px solid var(--line); border-radius: 99px; padding: 7px 15px;
+    color: var(--muted); transition: color .2s, border-color .2s;
+  }
+  .chipnav:hover { color: var(--cream); border-color: var(--copper); }
+  .chipnav.star { color: var(--copper-hot); border-color: rgba(200,120,64,.45); }
+  .chipnav.star:hover { border-color: var(--copper-hot); }
+  @media (max-width: 700px) { .chipnav.author { display: none; } }
+
   #corners { position: fixed; inset: 10px; z-index: 89; pointer-events: none; opacity: .5; }
   #corners i { position: absolute; width: 26px; height: 26px; border: 2px solid var(--line); }
   #corners i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; }
@@ -82,8 +94,9 @@
   section { max-width: 1060px; margin: 0 auto; padding: 110px 28px; position: relative; }
   .zoomable { transition: transform 1.2s cubic-bezier(.16,1,.3,1); transform-origin: 50% 38%; }
 
-  /* hero */
-  #hero { min-height: 92vh; display: flex; flex-direction: column; justify-content: center; padding-top: 90px; }
+  /* hero — centered composition */
+  #hero { min-height: 92vh; display: flex; flex-direction: column; justify-content: center;
+    align-items: center; text-align: center; padding-top: 90px; }
   #hero h1 {
     font-size: clamp(72px, 14vw, 168px); font-weight: 700; letter-spacing: -.045em; line-height: .95;
   }
@@ -94,11 +107,14 @@
   .risen .word { animation: rise .7s cubic-bezier(.16,1,.3,1) forwards; }
   @keyframes rise { to { opacity: 1; transform: translateY(0); } }
 
-  .heroline { margin-top: 30px; font-size: 18px; color: var(--muted); max-width: 620px; }
+  .heroline { margin-top: 30px; font-size: 18px; color: var(--muted); max-width: 620px; margin-left: auto; margin-right: auto; }
   .heroline em { color: var(--copper-hot); font-style: normal; }
 
-  .cta { display: flex; gap: 22px; margin-top: 40px; flex-wrap: wrap; align-items: flex-start; }
-  .agentbox { max-width: 560px; }
+  .cta { display: flex; gap: 22px; margin-top: 40px; flex-wrap: wrap; align-items: flex-start;
+    justify-content: center; width: 100%; }
+  .agentbox { max-width: 560px; margin: 0 auto; }
+  .promptcard p { text-align: left; }
+  .ctarow { justify-content: center; }
   .agentbox .al { font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: .18em;
     color: var(--copper-hot); margin-bottom: 10px; }
   .agentbox .ah { color: var(--muted); font-size: 13.5px; margin-top: 10px; }
@@ -227,6 +243,16 @@
   .inst pre { font-family: "JetBrains Mono", monospace; font-size: 12.5px; line-height: 1.6;
     color: var(--copper-hot); white-space: pre-wrap; word-break: break-word; }
 
+  @media (max-width: 640px) {
+    section { padding: 76px 20px; }
+    .term pre { font-size: 12.5px; height: 370px; }
+    #hero { padding-top: 120px; }
+    .heroline { font-size: 16px; }
+    .btn { width: 100%; text-align: center; }
+    .ctarow { flex-direction: column; gap: 14px; }
+    #caption { font-size: 13.5px; }
+  }
+
   footer { border-top: 1px solid var(--line); padding: 54px 28px 70px; text-align: center; color: var(--muted); font-size: 15px; }
   footer .meta { margin-top: 10px; font-family: "JetBrains Mono", monospace; font-size: 13px; }
   footer .meta b { color: var(--copper-hot); font-weight: 600; }
@@ -235,6 +261,10 @@
 <body>
 
 <div id="rec"><span class="dot"></span> REC <span id="tc">00:00:00</span></div>
+<div id="topnav">
+  <a class="chipnav author" href="https://anzalabidi.dev" target="_blank" rel="noopener">by Anzal ↗</a>
+  <a class="chipnav star" href="https://github.com/anzal1/voila" target="_blank" rel="noopener">★ Star on GitHub</a>
+</div>
 <div id="corners"><i></i><i></i><i></i><i></i></div>
 <div id="caption"></div>
 <div id="vcursor" style="opacity:0">
