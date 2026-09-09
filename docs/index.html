@@ -479,7 +479,7 @@ args = ["-y", "voila-recorder", "mcp"]</pre>
     await new Promise(r => setTimeout(r, 1200));
     cur.style.opacity = '0';
   }
-  performance_();
+  if (!new URLSearchParams(location.search).has('clean')) performance_();
 
   // self-narrating captions per section (muted with ?clean — e.g. while voila
   // itself records this page, so the two caption systems don't stack)
